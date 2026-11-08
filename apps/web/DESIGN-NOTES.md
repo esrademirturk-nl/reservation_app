@@ -16,7 +16,7 @@ Source: Claude Design export (`Waypad *.dc.html`, color tokens `Waypad-Color.Lig
 | — | Trip detail · Documents (original emails/PDFs) | `/trips/:id/documents` | ✅ built |
 | 3h | Trip detail · Travel book (3 themes, spreads, photos) | `/trips/:id/book` | ✅ built |
 | 7a | Order printed book + confirmation | `/trips/:id/book/order` | ✅ built |
-| 4a–4d | Place detail + audio guide, mini player | `/places/:id` | ⏳ |
+| 4a–4d | Place detail + audio guide (EN/TR/NL, speed, transcript), mini player | `/places/:id` (colosseum, trevi, pantheon) | ✅ built |
 | 1w, 1t | Wallet (Today travel day, Upcoming, Used, full-screen QR) | `/wallet?tab=` | ✅ built |
 | 6a, 2g | Suggestions (save / not for me / undo) | `/suggestions?trip=` | ✅ built |
 | 2a, 2m–2r | Import / Add booking flow (Import → Review → Saved) | modal from "Add booking" | ⏳ |

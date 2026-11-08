@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { Bell, ChevronsUpDown, CircleHelp, Globe, LayoutGrid, Lightbulb, LogOut, Map, Moon, Search, Settings, Sparkles, Sun, Ticket } from 'lucide-react'
 import { user } from '../data/demo'
+import { MiniPlayer } from './MiniPlayer'
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutGrid, end: true },
@@ -81,6 +82,7 @@ export function AppShell() {
         <main className="flex-1 px-10 pb-16 pt-9">
           <Outlet />
         </main>
+        <MiniPlayer />
       </div>
     </div>
   )
