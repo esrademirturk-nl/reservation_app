@@ -80,6 +80,23 @@ export const trips: Trip[] = [
   },
 ]
 
+/** Completed trip, used for My trips → Past and Wallet → Used. */
+export const pastTrips: Trip[] = [
+  {
+    id: 'paris',
+    city: 'Paris',
+    country: 'France',
+    countryCode: 'FR',
+    start: '2026-09-29',
+    end: '2026-10-01',
+    photo: wiki('4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg'),
+    photoCredit: 'Wikimedia Commons',
+    lat: 48.86,
+    lon: 2.35,
+    travelers: 2,
+  },
+]
+
 export const bookings: Booking[] = [
   // ---------- Rome (7 bookings, night of 15 Nov uncovered) ----------
   {
@@ -175,6 +192,30 @@ export const bookings: Booking[] = [
     id: 'got-flight-back', tripId: 'gothenburg', type: 'flight', title: 'SAS · GOT → AMS', provider: 'SAS', source: 'Email',
     start: '2027-05-18T18:30', end: '2027-05-18T20:05', location: 'Göteborg Landvetter → Amsterdam Schiphol', ref: 'SK9QX1',
     price: 151, paid: true, status: 'confirmed', checkInOpens: '2027-05-17', guests: 2, hasPass: false, addedAt: '2026-10-17T22:00',
+  },
+]
+
+/** Past bookings (Paris) and bookings that could not be matched to a trip. */
+export const otherBookings: Booking[] = [
+  {
+    id: 'par-eurostar', tripId: 'paris', type: 'train', title: 'Eurostar · Rotterdam → Paris', provider: 'Eurostar', source: 'Email',
+    start: '2026-09-29T09:22', end: '2026-09-29T12:05', location: 'Rotterdam Centraal → Paris Nord', ref: 'EUR-5JX82', price: 118,
+    paid: true, status: 'confirmed', guests: 2, hasPass: true, addedAt: '2026-09-10T10:00',
+  },
+  {
+    id: 'par-louvre', tripId: 'paris', type: 'museum', title: 'Louvre Museum', provider: 'Musée du Louvre', source: 'Email',
+    start: '2026-09-30T11:00', location: 'Rue de Rivoli, Paris', ref: 'LVR-77104', price: 44, paid: true, status: 'confirmed',
+    guests: 2, hasPass: true, addedAt: '2026-09-12T19:00',
+  },
+  {
+    id: 'uns-annefrank', tripId: 'unsorted', type: 'museum', title: 'Anne Frank House', provider: 'Anne Frank Stichting', source: 'Email',
+    start: '2027-03-14T13:30', location: 'Westermarkt 20, Amsterdam', ref: 'AFH-30914', price: 32, paid: true, status: 'confirmed',
+    guests: 2, hasPass: true, addedAt: '2026-10-22T20:15',
+  },
+  {
+    id: 'uns-london', tripId: 'unsorted', type: 'train', title: 'Eurostar · Rotterdam → London', provider: 'Eurostar', source: 'PDF',
+    start: '2027-04-02T08:15', end: '2027-04-02T11:47', location: 'Rotterdam Centraal → London St Pancras', ref: 'EUR-8QK41', price: 156,
+    paid: true, status: 'confirmed', guests: 2, hasPass: true, addedAt: '2026-10-21T09:40',
   },
 ]
 

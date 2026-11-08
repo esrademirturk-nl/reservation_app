@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Bell, ChevronsUpDown, LayoutGrid, Lightbulb, Map, Moon, Search, Sun, Ticket } from 'lucide-react'
+import { Bell, ChevronsUpDown, CircleHelp, Globe, LayoutGrid, Lightbulb, LogOut, Map, Moon, Search, Settings, Sparkles, Sun, Ticket } from 'lucide-react'
 import { user } from '../data/demo'
 
 const nav = [
@@ -54,14 +54,7 @@ export function AppShell() {
           ))}
         </nav>
 
-        <button className="mt-auto flex items-center gap-3 rounded-xl border border-line bg-surface p-3 text-left hover:bg-tint/40">
-          <span className="grid size-9 place-items-center rounded-full bg-accent-decor text-sm font-bold text-white">{user.initials}</span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-bold text-ink">{user.fullName}</span>
-            <span className="block text-xs text-muted">{user.plan}</span>
-          </span>
-          <ChevronsUpDown size={16} className="text-muted" />
-        </button>
+        <AvatarMenu />
       </aside>
 
       <div className="flex min-w-0 flex-col">
@@ -89,6 +82,57 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+    </div>
+  )
+}
+
+function AvatarMenu() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const item = 'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold text-ink hover:bg-tint'
+  return (
+    <div ref={ref} className="relative mt-auto">
+      {open && (
+        <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-line bg-surface p-2 shadow-card">
+          <div className="border-b border-line px-3 pb-3 pt-1">
+            <p className="text-sm font-bold text-ink">{user.fullName}</p>
+            <p className="truncate text-xs text-muted">{user.email}</p>
+          </div>
+          <div className="flex flex-col gap-0.5 py-2">
+            <button className={item}><Globe size={16} className="text-muted" /> Language <span className="ml-auto text-xs font-semibold text-muted">English</span></button>
+            <button className={item}><Settings size={16} className="text-muted" /> Settings</button>
+            <button className={item}><CircleHelp size={16} className="text-muted" /> Help</button>
+            <button className={`${item} bg-tint`}><Sparkles size={16} className="text-accent" /> Upgrade plan <span className="ml-auto text-xs font-extrabold text-accent">PRO</span></button>
+          </div>
+          <div className="border-t border-line pt-2">
+            <button className={`${item} text-error`}><LogOut size={16} /> Log out</button>
+          </div>
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 rounded-xl border border-line bg-surface p-3 text-left hover:bg-tint/40"
+      >
+        <span className="grid size-9 place-items-center rounded-full bg-accent-decor text-sm font-bold text-white">{user.initials}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-bold text-ink">{user.fullName}</span>
+          <span className="block text-xs text-muted">{user.plan}</span>
+        </span>
+        <ChevronsUpDown size={16} className="text-muted" />
+      </button>
     </div>
   )
 }
