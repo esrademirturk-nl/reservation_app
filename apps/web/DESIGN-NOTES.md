@@ -10,9 +10,9 @@ Source: Claude Design export (`Waypad *.dc.html`, color tokens `Waypad-Color.Lig
 | 1c / 1d | Dashboard · empty state | `/` (no trips) | ⏳ |
 | 1r | Dashboard · after trip (Welcome back) | `/` (demo date 17 Nov) | ⏳ |
 | 5a, 2c, 2k | My trips (Upcoming, Past empty) | `/trips` | ⏳ |
-| 3a / 3b | Trip detail · Overview | `/trips/:id` | ⏳ |
-| 3c, 3d, 3e | Trip detail · Day plan, Nearby, location permission | `/trips/:id/plan` | ⏳ |
-| 3f, 3g | Trip detail · Bookings, cancelled card | `/trips/:id/bookings` | ⏳ |
+| 3a / 3b | Trip detail · Overview | `/trips/:id` | ✅ built |
+| 3c, 3d, 3e | Trip detail · Day plan, Nearby, location permission | `/trips/:id/plan?day=N` | ✅ built |
+| 3f, 3g | Trip detail · Bookings, detail drawer, ⋯ menu, ticket QR, cancelled card | `/trips/:id/bookings?open=ID` / `?ticket=ID` | ✅ built |
 | 3h | Trip detail · Travel book | `/trips/:id/book` | ⏳ |
 | 7a | Order printed book | `/trips/:id/book/order` | ⏳ |
 | 4a–4d | Place detail + audio guide, mini player | `/places/:id` | ⏳ |
