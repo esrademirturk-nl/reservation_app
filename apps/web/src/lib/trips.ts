@@ -137,3 +137,34 @@ export const relativeAdded = (iso: string) => {
 
 export const sourceLabel = (b: Booking) =>
   b.source === 'Manual' ? 'Added manually' : b.source === 'Booking.com' ? 'Imported from Booking.com' : b.source === 'PDF' ? 'Imported from PDF' : 'Imported from email'
+
+/* ---------- trip days & events ---------- */
+export const tripDays = (t: Trip) => {
+  const out: string[] = []
+  for (let i = 0; i <= nights(t); i++) out.push(new Date(d(t.start).getTime() + i * DAY + 12 * 3600_000).toISOString().slice(0, 10))
+  return out
+}
+
+export interface TripEvent {
+  key: string
+  at: string // ISO datetime
+  booking: Booking
+  label: string // e.g. "Check-in", "Check-out" or ""
+}
+
+/** Bookings as events on the timeline (hotels appear twice: check-in and check-out). */
+export const tripEvents = (tripId: string): TripEvent[] =>
+  bookingsFor(tripId)
+    .flatMap((b) =>
+      b.type === 'hotel' && b.end
+        ? [
+            { key: b.id + '-in', at: b.start, booking: b, label: 'Check-in' },
+            { key: b.id + '-out', at: b.end, booking: b, label: 'Check-out' },
+          ]
+        : [{ key: b.id, at: b.start, booking: b, label: '' }],
+    )
+    .sort((a, b) => a.at.localeCompare(b.at))
+
+export const fmtDayLong = (iso: string) => `${fmtWeekday(iso)} ${fmtDay(iso)}`
+
+export const tripTotal = (tripId: string) => bookingsFor(tripId).reduce((n, b) => n + b.price, 0)
