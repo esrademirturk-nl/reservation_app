@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* Design tokens — from Waypad-Color.Light/Dark.tokens.json */
+:root {
+  --c-primary: #043263;
+  --c-on-primary: #ffffff;
+  --c-accent: #00839f;
+  --c-accent-decor: #01afd1;
+  --c-link: #1a6fc4;
+  --c-highlight: #d5603f;
+  --c-on-highlight: #ffffff;
+  --c-highlight-soft: #ffdeb1;
+  --c-on-highlight-soft: #56202d;
+  --c-background: #f6f8fd;
+  --c-surface: #ffffff;
+  --c-surface-tint: #dbe5ff;
+  --c-text: #043263;
+  --c-text-muted: #5a6b85;
+  --c-border: #d5dded;
+  --c-success: #23784a;
+  --c-error: #c0392b;
+  --c-hero: #043263;
+  --c-map-sea: #e8eefb;
+  --c-map-land: #f6f8fd;
+}
+
+.dark {
+  --c-primary: #239efe;
+  --c-on-primary: #043263;
+  --c-accent: #7dbafb;
+  --c-accent-decor: #01afd1;
+  --c-link: #7dbafb;
+  --c-highlight: #e8835f;
+  --c-on-highlight: #071528;
+  --c-highlight-soft: #3d2118;
+  --c-on-highlight-soft: #ffdeb1;
+  --c-background: #071528;
+  --c-surface: #0e2240;
+  --c-surface-tint: #16305a;
+  --c-text: #dbe5ff;
+  --c-text-muted: #9db0cc;
+  --c-border: #1e3760;
+  --c-success: #4cc38a;
+  --c-error: #f07167;
+  --c-hero: #04224a;
+  --c-map-sea: #0b1c36;
+  --c-map-land: #12294b;
+}
+
+@theme inline {
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+
+  --color-primary: var(--c-primary);
+  --color-on-primary: var(--c-on-primary);
+  --color-accent: var(--c-accent);
+  --color-accent-decor: var(--c-accent-decor);
+  --color-link: var(--c-link);
+  --color-highlight: var(--c-highlight);
+  --color-on-highlight: var(--c-on-highlight);
+  --color-highlight-soft: var(--c-highlight-soft);
+  --color-on-highlight-soft: var(--c-on-highlight-soft);
+  --color-bg: var(--c-background);
+  --color-surface: var(--c-surface);
+  --color-tint: var(--c-surface-tint);
+  --color-ink: var(--c-text);
+  --color-muted: var(--c-text-muted);
+  --color-line: var(--c-border);
+  --color-success: var(--c-success);
+  --color-error: var(--c-error);
+  --color-hero: var(--c-hero);
+  --color-map-sea: var(--c-map-sea);
+  --color-map-land: var(--c-map-land);
+
+  --shadow-card: 0 1px 2px rgba(4, 50, 99, 0.06), 0 12px 32px rgba(4, 50, 99, 0.1);
+  --shadow-pop: 0 8px 24px rgba(4, 50, 99, 0.1);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-background);
+  color: var(--c-text);
+  font-family: "Manrope", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
