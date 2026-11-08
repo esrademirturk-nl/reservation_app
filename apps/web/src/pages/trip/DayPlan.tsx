@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { BedDouble, Footprints, GripVertical, Headphones, LocateFixed, MapPin, Plus, Sparkles, TrainFront, TriangleAlert, X } from 'lucide-react'
 import type { Trip } from '../../data/types'
 import { bookingPos, freeTime, planned } from '../../data/plan'
+import { placeIdFor } from '../../data/places'
 import { bookingsFor, fmtDay, fmtTime, fmtWeekday, missingNights, tripDays, tripEvents } from '../../lib/trips'
 import { Card, typeIcon } from '../../components/ui'
 
@@ -160,8 +161,8 @@ export function DayPlan({ trip }: { trip: Trip }) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 pl-[52px]">
-                      {((it.kind === 'planned' && it.audio) || (it.kind === 'booking' && it.type === 'museum')) && (
-                        <Link to="/places/colosseum" className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold text-ink hover:bg-tint">
+                      {((it.kind === 'planned' && it.audio) || (it.kind === 'booking' && it.type === 'museum')) && placeIdFor(it.title) && (
+                        <Link to={`/places/${placeIdFor(it.title)}`} className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold text-ink hover:bg-tint">
                           <Headphones size={13} /> Audio guide · 2 min
                         </Link>
                       )}
