@@ -5,8 +5,10 @@ import { Photo } from '../../components/ui'
 import { Overview } from './Overview'
 import { DayPlan } from './DayPlan'
 import { Bookings } from './Bookings'
+import { Documents, documentsFor } from './Documents'
+import { TravelBook } from './TravelBook'
 
-type Tab = 'overview' | 'plan' | 'bookings'
+type Tab = 'overview' | 'plan' | 'bookings' | 'documents' | 'book'
 
 const MONTH = (iso: string) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(iso.slice(5, 7)) - 1]
 
@@ -21,6 +23,8 @@ export function TripDetail({ tab }: { tab: Tab }) {
     { to: `/trips/${trip.id}`, label: 'Overview', end: true },
     { to: `/trips/${trip.id}/plan`, label: 'Day plan' },
     { to: `/trips/${trip.id}/bookings`, label: 'Bookings', count: bs.length },
+    { to: `/trips/${trip.id}/documents`, label: 'Documents', count: documentsFor(trip.id).length },
+    { to: `/trips/${trip.id}/book`, label: 'Travel book', badge: 'New' },
   ]
 
   return (
@@ -41,7 +45,7 @@ export function TripDetail({ tab }: { tab: Tab }) {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-[34px] font-extrabold tracking-tight text-ink">{trip.city}, {trip.country}</h1>
-              {until > 0 && <span className="rounded-full bg-tint px-3 py-1 text-[13px] font-bold text-primary">In {until} days</span>}
+              {until > 0 ? <span className="rounded-full bg-tint px-3 py-1 text-[13px] font-bold text-primary">In {until} days</span> : daysUntil(trip.end) < 0 ? <span className="rounded-full bg-tint px-3 py-1 text-[13px] font-bold text-muted">Completed</span> : null}
             </div>
             <p className="mt-1 flex items-center gap-4 text-[15px] text-muted">
               <span>
@@ -67,7 +71,8 @@ export function TripDetail({ tab }: { tab: Tab }) {
               }
             >
               {t.label}
-              {t.count != null && <span className="rounded-md bg-tint px-1.5 text-xs text-primary">{t.count}</span>}
+              {'count' in t && t.count != null && <span className="rounded-md bg-tint px-1.5 text-xs text-primary">{t.count}</span>}
+              {'badge' in t && <span className="rounded-full bg-accent-decor px-2 text-[11px] text-white">{t.badge}</span>}
             </NavLink>
           ))}
         </div>
@@ -76,6 +81,8 @@ export function TripDetail({ tab }: { tab: Tab }) {
       {tab === 'overview' && <Overview trip={trip} />}
       {tab === 'plan' && <DayPlan trip={trip} />}
       {tab === 'bookings' && <Bookings trip={trip} />}
+      {tab === 'documents' && <Documents trip={trip} />}
+      {tab === 'book' && <TravelBook trip={trip} />}
     </div>
   )
 }

@@ -9,18 +9,19 @@ Source: Claude Design export (`Waypad *.dc.html`, color tokens `Waypad-Color.Lig
 | 1a / 1b | Dashboard (light / dark) | `/` | ✅ built |
 | 1c / 1d | Dashboard · empty state | `/` (no trips) | ⏳ |
 | 1r | Dashboard · after trip (Welcome back) | `/` (demo date 17 Nov) | ⏳ |
-| 5a, 2c, 2k | My trips (Upcoming, Past empty) | `/trips` | ⏳ |
+| 5a, 2c, 2k | My trips (Upcoming, Past, Unsorted, grid/list) | `/trips?tab=` | ✅ built |
 | 3a / 3b | Trip detail · Overview | `/trips/:id` | ✅ built |
 | 3c, 3d, 3e | Trip detail · Day plan, Nearby, location permission | `/trips/:id/plan?day=N` | ✅ built |
 | 3f, 3g | Trip detail · Bookings, detail drawer, ⋯ menu, ticket QR, cancelled card | `/trips/:id/bookings?open=ID` / `?ticket=ID` | ✅ built |
-| 3h | Trip detail · Travel book | `/trips/:id/book` | ⏳ |
-| 7a | Order printed book | `/trips/:id/book/order` | ⏳ |
+| — | Trip detail · Documents (original emails/PDFs) | `/trips/:id/documents` | ✅ built |
+| 3h | Trip detail · Travel book (3 themes, spreads, photos) | `/trips/:id/book` | ✅ built |
+| 7a | Order printed book + confirmation | `/trips/:id/book/order` | ✅ built |
 | 4a–4d | Place detail + audio guide, mini player | `/places/:id` | ⏳ |
-| 1w, 1t, 1v | Wallet (Upcoming, Today/travel day, photo variant) | `/wallet` | ⏳ |
-| 6a, 2g | Suggestions | `/suggestions` | ⏳ |
+| 1w, 1t | Wallet (Today travel day, Upcoming, Used, full-screen QR) | `/wallet?tab=` | ✅ built |
+| 6a, 2g | Suggestions (save / not for me / undo) | `/suggestions?trip=` | ✅ built |
 | 2a, 2m–2r | Import / Add booking flow (Import → Review → Saved) | modal from "Add booking" | ⏳ |
 
-Not in the export yet: order confirmation screen, Wallet "Used" tab, My trips "Unsorted" tab.
+Added beyond the export: order confirmation, Wallet "Used" tab (Paris trip), My trips "Unsorted" tab, Documents tab.
 
 ## One set of demo data
 
