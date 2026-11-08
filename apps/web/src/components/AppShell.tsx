@@ -35,7 +35,7 @@ export function AppShell() {
   return (
     <div className="grid min-h-screen grid-cols-[240px_minmax(0,1fr)] bg-bg">
       <aside className="sticky top-0 flex h-screen flex-col border-r border-line bg-surface px-4 py-6">
-        <img src={dark ? '/waypad-logo-dark.png' : '/waypad-logo-light.png'} alt="Waypad" className="mb-8 ml-2 h-7 w-auto self-start" />
+        <img src={`${import.meta.env.BASE_URL}${dark ? 'waypad-logo-dark.png' : 'waypad-logo-light.png'}`} alt="Waypad" className="mb-8 ml-2 h-7 w-auto self-start" />
         <nav className="flex flex-col gap-1">
           {nav.map(({ to, label, icon: Icon, end }) => (
             <NavLink
