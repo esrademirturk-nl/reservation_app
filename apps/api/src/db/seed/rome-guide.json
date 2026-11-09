@@ -1,0 +1,332 @@
+{
+ "city": "Rome",
+ "countryCode": "IT",
+ "places": [
+  {
+   "slug": "colosseum",
+   "name": "Colosseum",
+   "kind": "Ancient site",
+   "category": "sight",
+   "address": "Piazza del Colosseo, 00184 Roma",
+   "lat": 41.8902,
+   "lon": 12.4922,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Colosseum%2C_Rome%2C_Italy.jpg/1920px-Colosseum%2C_Rome%2C_Italy.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "08:30–16:30",
+   "hoursNote": "Last entry 15:30 · Nov–Feb hours",
+   "visitMinutes": 90,
+   "priceLevel": null,
+   "rank": 1,
+   "narrations": [
+    {
+     "language": "en",
+     "text": "You're standing in front of the Flavian Amphitheatre, the building we now call the Colosseum. Emperor Vespasian began it around AD 72, on the site of an artificial lake in Nero's palace gardens, and his son Titus opened it in AD 80 with a hundred days of games. Up to fifty thousand people filled these stands. They entered through eighty arches, most of them numbered, so every ticket pointed to a gate, a staircase and a row. Look up at the outer wall. The half-columns change as they rise: Tuscan-Doric at street level, then Ionic, then Corinthian. Near the very top, you can still see the stone brackets that once held wooden masts for the velarium, a huge awning that shaded the crowd. Inside, the arena floor was wood covered with sand. Beneath it lies the hypogeum, a two-level maze of tunnels, cages and lifts that raised animals and scenery up through trapdoors. The missing southern side came down in earthquakes, and for centuries the fallen stone was carted away to build churches and palaces across Rome. The holes that dot the walls are where iron clamps were pried out and melted down. When you go in at ten, head to the arena level first, then climb to the upper ring for the view over the Forum.",
+     "seconds": 105
+    },
+    {
+     "language": "tr",
+     "text": "Şu anda Flavius Amfitiyatrosu'nun, bugün Kolezyum dediğimiz yapının önündesiniz. İmparator Vespasianus inşaata MS 72 civarında, Neron'un saray bahçelerindeki yapay bir gölün yerinde başladı; oğlu Titus ise yapıyı MS 80'de yüz gün süren oyunlarla açtı. Bu tribünleri elli bine kadar seyirci doldururdu. Seyirciler çoğu numaralı seksen kemerden girerdi; böylece her bilet bir kapıyı, bir merdiveni ve bir sırayı gösterirdi. Dış duvara bakın. Yarım sütunlar yükseldikçe değişir: zemin katta Toskana-Dor, ardından İyon, en üstte Korint. En tepeye yakın yerde, seyircileri gölgeleyen dev tente velariumun ahşap direklerini taşıyan taş konsolları hâlâ görebilirsiniz. İçeride arena zemini kumla kaplı ahşaptan yapılmıştı. Altında ise hayvanları ve dekorları kapaklardan yukarı taşıyan tüneller, kafesler ve asansörlerden oluşan iki katlı hipojeum yer alır. Eksik olan güney cephesi depremlerde yıkıldı ve düşen taşlar yüzyıllar boyunca Roma'daki kiliseleri ve sarayları inşa etmek için taşındı. Duvarlardaki delikler, sökülüp eritilen demir kenetlerin izleridir. Saat onda içeri girdiğinizde önce arena katına gidin, ardından Forum manzarası için üst kata çıkın.",
+     "seconds": 105
+    },
+    {
+     "language": "nl",
+     "text": "U staat voor het Flavisch Amfitheater, het gebouw dat we nu het Colosseum noemen. Keizer Vespasianus begon er rond 72 na Christus aan, op de plek van een kunstmatig meer in de paleistuinen van Nero, en zijn zoon Titus opende het in het jaar 80 met honderd dagen spelen. Tot vijftigduizend mensen vulden deze tribunes. Ze kwamen binnen via tachtig bogen, de meeste genummerd, zodat elk toegangsbewijs naar een poort, een trap en een rij verwees. Kijk omhoog naar de buitenmuur. De halfzuilen veranderen naarmate ze hoger komen: Toscaans-Dorisch op straatniveau, dan Ionisch, dan Korinthisch. Vlak onder de top ziet u nog de stenen consoles die ooit houten masten droegen voor het velarium, een enorm zonnescherm boven het publiek. Binnen was de arenavloer van hout, bedekt met zand. Daaronder ligt het hypogeum, een doolhof van gangen, kooien en liften op twee niveaus die dieren en decors via valluiken omhoog brachten. De ontbrekende zuidkant stortte in bij aardbevingen, en eeuwenlang werd de gevallen steen weggehaald om kerken en paleizen in Rome te bouwen. De gaten in de muren zijn de plekken waar ijzeren klemmen werden uitgebroken en omgesmolten. Als u om tien uur naar binnen gaat, begin dan op het arenaniveau en klim daarna naar de bovenste ring voor het uitzicht over het Forum.",
+     "seconds": 105
+    }
+   ]
+  },
+  {
+   "slug": "trevi",
+   "name": "Trevi Fountain",
+   "kind": "Fountain",
+   "category": "sight",
+   "address": "Piazza di Trevi, 00187 Roma",
+   "lat": 41.9009,
+   "lon": 12.4833,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Trevi_Fountain%2C_Rome%2C_Italy_2_-_May_2007.jpg/1920px-Trevi_Fountain%2C_Rome%2C_Italy_2_-_May_2007.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "Open 24 hours",
+   "hoursNote": "Quietest before 8:00 or after 22:00",
+   "visitMinutes": 30,
+   "priceLevel": null,
+   "rank": 2,
+   "narrations": [
+    {
+     "language": "en",
+     "text": "This is the Trevi Fountain, finished in 1762 after thirty years of work. It sits at the end of the Aqua Virgo, an aqueduct that has carried water into Rome since 19 BC. In the centre stands Oceanus on a shell-shaped chariot, pulled by two sea horses: one calm, one wild, to show the two moods of the sea. The fountain is built against the back of a palace, so the building itself becomes the stage. Tradition says that if you throw a coin over your left shoulder with your right hand, you will return to Rome. Around a million euros are collected every year and given to charity.",
+     "seconds": 70
+    },
+    {
+     "language": "tr",
+     "text": "Burası 1762'de, otuz yıllık çalışmanın ardından tamamlanan Trevi Çeşmesi. MÖ 19'dan beri Roma'ya su taşıyan Aqua Virgo su kemerinin son noktasında yer alır. Ortada, deniz kabuğu biçimli bir arabanın üzerinde Okeanos durur; arabayı biri sakin, biri vahşi iki deniz atı çeker ve denizin iki ruh halini anlatır. Çeşme bir sarayın arka cephesine yaslanarak yapılmıştır, bu yüzden bina sahnenin kendisi olur. Geleneğe göre sağ elinizle sol omzunuzun üzerinden bir bozuk para atarsanız Roma'ya geri dönersiniz. Her yıl toplanan yaklaşık bir milyon euro hayır kurumlarına bağışlanır.",
+     "seconds": 70
+    }
+   ]
+  },
+  {
+   "slug": "pantheon",
+   "name": "Pantheon",
+   "kind": "Temple · Church",
+   "category": "sight",
+   "address": "Piazza della Rotonda, 00186 Roma",
+   "lat": 41.8986,
+   "lon": 12.4769,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Pantheon_Rome_-_Front.jpg/1920px-Pantheon_Rome_-_Front.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "09:00–19:00",
+   "hoursNote": "Timed entry · €5",
+   "visitMinutes": 45,
+   "priceLevel": null,
+   "rank": 3,
+   "narrations": [
+    {
+     "language": "en",
+     "text": "The Pantheon you see today was built under Emperor Hadrian around AD 125, yet the inscription still credits Marcus Agrippa, who built the first temple here. Step inside and look up. The dome is still the largest unreinforced concrete dome in the world, forty-three metres across, exactly as high as it is wide. The concrete gets lighter as it rises, mixed with pumice near the top. The only light comes from the oculus, a nine-metre opening to the sky. When it rains, the water falls straight in and drains through small holes in the marble floor. The painter Raphael is buried here, on the left as you face the altar.",
+     "seconds": 65
+    },
+    {
+     "language": "tr",
+     "text": "Bugün gördüğünüz Pantheon MS 125 civarında İmparator Hadrianus döneminde inşa edildi; yine de yazıt, buradaki ilk tapınağı yaptıran Marcus Agrippa'yı anar. İçeri girin ve yukarı bakın. Kubbe hâlâ dünyanın en büyük donatısız beton kubbesidir: kırk üç metre çapında ve tam genişliği kadar yüksek. Beton yükseldikçe hafifler, tepeye yakın kısımlarda ponza taşıyla karıştırılmıştır. Tek ışık, gökyüzüne açılan dokuz metrelik oculustan gelir. Yağmur yağdığında su doğrudan içeri düşer ve mermer zemindeki küçük deliklerden akar. Ressam Raffaello da burada, sunağa bakarken solda gömülüdür.",
+     "seconds": 65
+    }
+   ]
+  },
+  {
+   "slug": "forum",
+   "name": "Roman Forum",
+   "kind": "Ancient site",
+   "category": "sight",
+   "address": "Via della Salara Vecchia 5/6, 00186 Roma",
+   "lat": 41.8925,
+   "lon": 12.4853,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Roman_Forum_from_Palatine_Hill.jpg/1920px-Roman_Forum_from_Palatine_Hill.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "08:30–16:30",
+   "hoursNote": "Same combined ticket as the Colosseum",
+   "visitMinutes": 90,
+   "priceLevel": null,
+   "rank": 4,
+   "narrations": [
+    {
+     "language": "en",
+     "text": "For almost a thousand years this valley was the centre of Roman life. Elections, trials, speeches and markets all happened here. Look for the eight granite columns of the Temple of Saturn, which once held the state treasury. Nearby is the spot where Julius Caesar's body was burned in 44 BC; people still leave flowers there today. Walk along the Via Sacra, the sacred road that victory parades followed towards the Capitoline Hill. Your Colosseum ticket also covers the Forum and the Palatine Hill above it.",
+     "seconds": 60
+    },
+    {
+     "language": "tr",
+     "text": "Neredeyse bin yıl boyunca bu vadi Roma yaşamının merkeziydi. Seçimler, davalar, konuşmalar ve pazarlar hep burada yapılırdı. Bir zamanlar devlet hazinesini barındıran Satürn Tapınağı'nın sekiz granit sütununu arayın. Yakınında, Jül Sezar'ın cesedinin MÖ 44'te yakıldığı yer var; insanlar bugün hâlâ oraya çiçek bırakıyor. Zafer alaylarının Capitolinus Tepesi'ne doğru izlediği kutsal yol Via Sacra boyunca yürüyün. Kolezyum biletiniz Forum'u ve üstündeki Palatinus Tepesi'ni de kapsıyor.",
+     "seconds": 60
+    }
+   ]
+  },
+  {
+   "slug": "arch",
+   "name": "Arch of Constantine",
+   "kind": "Monument",
+   "category": "sight",
+   "address": "Via di San Gregorio, 00186 Roma",
+   "lat": 41.8898,
+   "lon": 12.4906,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Arch_of_Constantine_%28Rome%29_-_South_side%2C_from_Via_triumphalis.jpg/1920px-Arch_of_Constantine_%28Rome%29_-_South_side%2C_from_Via_triumphalis.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "Open 24 hours",
+   "hoursNote": "Seen from outside · free",
+   "visitMinutes": 15,
+   "priceLevel": null,
+   "rank": 8,
+   "narrations": [
+    {
+     "language": "en",
+     "text": "This is the largest surviving triumphal arch in Rome, finished in AD 315 to celebrate Constantine's victory at the Milvian Bridge. Look closely and you will notice the styles don't match. Many of the reliefs were taken from older monuments built for Trajan, Hadrian and Marcus Aurelius, and their faces were recut to look like Constantine. It is one of the earliest examples of recycling in Roman architecture.",
+     "seconds": 45
+    },
+    {
+     "language": "tr",
+     "text": "Burası Roma'da ayakta kalan en büyük zafer takı; Konstantin'in Milvius Köprüsü'ndeki zaferini kutlamak için MS 315'te tamamlandı. Yakından bakarsanız üslupların birbirini tutmadığını fark edersiniz. Kabartmaların çoğu Traianus, Hadrianus ve Marcus Aurelius için yapılmış daha eski anıtlardan alındı ve yüzleri Konstantin'e benzeyecek şekilde yeniden oyuldu. Roma mimarisinde geri dönüşümün en eski örneklerinden biridir.",
+     "seconds": 45
+    }
+   ]
+  },
+  {
+   "slug": "clemente",
+   "name": "Basilica of San Clemente",
+   "kind": "Church",
+   "category": "sight",
+   "address": "Via Labicana 95, 00184 Roma",
+   "lat": 41.8893,
+   "lon": 12.4976,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/San_Clemente_al_Laterano_-_Interior.jpg/1920px-San_Clemente_al_Laterano_-_Interior.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "09:00–12:30, 15:00–18:00",
+   "hoursNote": "Underground levels · €10",
+   "visitMinutes": 60,
+   "priceLevel": null,
+   "rank": 9,
+   "narrations": [
+    {
+     "language": "en",
+     "text": "San Clemente is three buildings stacked on top of each other. The church you enter was built in the twelfth century. Go down the stairs and you reach a fourth-century basilica with faded frescoes. Go down once more and you are in first-century Rome: a house and a temple to the god Mithras. At the bottom, listen carefully and you can hear an underground stream still running beneath the city.",
+     "seconds": 50
+    },
+    {
+     "language": "tr",
+     "text": "San Clemente üst üste yığılmış üç yapıdan oluşur. Girdiğiniz kilise on ikinci yüzyılda inşa edildi. Merdivenlerden inince solmuş fresklerle dolu dördüncü yüzyıldan kalma bir bazilikaya ulaşırsınız. Bir kat daha inince birinci yüzyıl Roma'sındasınız: bir ev ve tanrı Mithras'a adanmış bir tapınak. En altta dikkatle dinlerseniz şehrin altında hâlâ akan bir yeraltı deresini duyabilirsiniz.",
+     "seconds": 50
+    }
+   ]
+  },
+  {
+   "slug": "vatican",
+   "name": "Vatican Museums",
+   "kind": "Museum",
+   "category": "museum",
+   "address": "Viale Vaticano, 00165 Roma",
+   "lat": 41.9065,
+   "lon": 12.4536,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Vatican_Museums_Spiral_Staircase_2012.jpg/640px-Vatican_Museums_Spiral_Staircase_2012.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "09:00–18:00",
+   "hoursNote": "Timed tickets · book ahead",
+   "visitMinutes": 180,
+   "priceLevel": null,
+   "rank": 5,
+   "narrations": []
+  },
+  {
+   "slug": "capitoline",
+   "name": "Capitoline Museums",
+   "kind": "Museum",
+   "category": "museum",
+   "address": "Piazza del Campidoglio 1, 00186 Roma",
+   "lat": 41.893,
+   "lon": 12.4828,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Piazza_del_Campidoglio_%28Rome%29.jpg/640px-Piazza_del_Campidoglio_%28Rome%29.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "09:30–19:30",
+   "hoursNote": "Terrace with a view over the Forum",
+   "visitMinutes": 90,
+   "priceLevel": null,
+   "rank": 6,
+   "narrations": []
+  },
+  {
+   "slug": "sant-eustachio",
+   "name": "Sant'Eustachio Il Caffè",
+   "kind": "Coffee",
+   "category": "coffee",
+   "address": "Piazza di S. Eustachio 82, 00186 Roma",
+   "lat": 41.8982,
+   "lon": 12.4752,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/640px-A_small_cup_of_coffee.JPG",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "07:30–01:00",
+   "hoursNote": "Roasting its own beans since 1938",
+   "visitMinutes": 20,
+   "priceLevel": 1,
+   "rank": 7,
+   "narrations": []
+  },
+  {
+   "slug": "trastevere",
+   "name": "Trastevere evening walk",
+   "kind": "Walk",
+   "category": "walk",
+   "address": "Piazza di Santa Maria in Trastevere, 00153 Roma",
+   "lat": 41.8894,
+   "lon": 12.47,
+   "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Trastevere_%28Rome%29.jpg/640px-Trastevere_%28Rome%29.jpg",
+   "photoCredit": "Wikimedia Commons",
+   "hours": "Any time",
+   "hoursNote": "Best after sunset",
+   "visitMinutes": 120,
+   "priceLevel": null,
+   "rank": 10,
+   "narrations": []
+  },
+  {
+   "slug": "campo-de-fiori",
+   "name": "Campo de' Fiori market",
+   "kind": "Market",
+   "category": "food",
+   "address": "Piazza Campo de' Fiori, 00186 Roma",
+   "lat": 41.8956,
+   "lon": 12.4722,
+   "photoUrl": null,
+   "photoCredit": null,
+   "hours": "07:00–14:00",
+   "hoursNote": "Mornings, Monday–Saturday",
+   "visitMinutes": 60,
+   "priceLevel": 1,
+   "rank": 11,
+   "narrations": []
+  },
+  {
+   "slug": "spanish-steps",
+   "name": "Spanish Steps",
+   "kind": "Landmark",
+   "category": "sight",
+   "address": "Piazza di Spagna, 00187 Roma",
+   "lat": 41.906,
+   "lon": 12.4828,
+   "photoUrl": null,
+   "photoCredit": null,
+   "hours": "Open 24 hours",
+   "hoursNote": "No sitting on the steps (fine)",
+   "visitMinutes": 30,
+   "priceLevel": null,
+   "rank": 12,
+   "narrations": []
+  }
+ ],
+ "plan": [
+  {
+   "date": "2026-11-13",
+   "startTime": "09:00",
+   "title": "Breakfast at hotel",
+   "subtitle": "Hotel Roma Centro · 45 min",
+   "place": null
+  },
+  {
+   "date": "2026-11-13",
+   "startTime": "17:30",
+   "title": "Trevi Fountain",
+   "subtitle": "Piazza di Trevi · 30 min",
+   "place": "trevi"
+  },
+  {
+   "date": "2026-11-14",
+   "startTime": "15:00",
+   "title": "Pantheon",
+   "subtitle": "Piazza della Rotonda · 45 min",
+   "place": "pantheon"
+  },
+  {
+   "date": "2026-11-14",
+   "startTime": "19:00",
+   "title": "Trastevere evening walk",
+   "subtitle": "Santa Maria in Trastevere · 2 h",
+   "place": "trastevere"
+  },
+  {
+   "date": "2026-11-15",
+   "startTime": "10:30",
+   "title": "Campo de' Fiori market",
+   "subtitle": "Campo de' Fiori · 1 h",
+   "place": "campo-de-fiori"
+  },
+  {
+   "date": "2026-11-12",
+   "startTime": "12:00",
+   "title": "Leonardo Express to Termini",
+   "subtitle": "Fiumicino → Roma Termini · 32 min",
+   "place": null
+  },
+  {
+   "date": "2026-11-12",
+   "startTime": "17:00",
+   "title": "Spanish Steps at sunset",
+   "subtitle": "Piazza di Spagna · 1 h",
+   "place": "spanish-steps"
+  }
+ ]
+}
