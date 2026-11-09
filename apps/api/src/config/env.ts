@@ -7,6 +7,13 @@ export const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+  /** signs access tokens; at least 32 random characters */
+  JWT_SECRET: z.string().min(32, 'must be at least 32 characters'),
+  /** access token lifetime in seconds (default 15 minutes) */
+  JWT_ACCESS_TTL: z.coerce.number().int().positive().default(900),
+  REFRESH_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  /** domain of the personal forwarding addresses, e.g. esra@in.waypad.app */
+  FORWARD_DOMAIN: z.string().default('in.waypad.app'),
   /** comma-separated list of origins allowed to call the API from a browser */
   CORS_ORIGINS: z
     .string()

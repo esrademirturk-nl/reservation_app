@@ -1,23 +1,14 @@
 import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
-import { runMigrations } from '../src/db/migrate';
 import { seed } from '../src/db/seed/seed';
-import { setupApp } from '../src/setup-app';
+import { createTestApp } from './app';
 
 describe('API foundation (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeAll(async () => {
-    await runMigrations();
-    await seed();
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = setupApp(moduleRef.createNestApplication<INestApplication<App>>());
-    await app.init();
+    app = await createTestApp();
   });
 
   afterAll(async () => {
@@ -35,7 +26,8 @@ describe('API foundation (e2e)', () => {
   });
 
   it('routes outside /api/v1 are not found', async () => {
-    await request(app.getHttpServer()).get('/health').expect(404);
+    const res = await request(app.getHttpServer()).get('/health').expect(404);
+    expect(res.body.code).toBe('NOT_FOUND');
   });
 
   it('seeding twice leaves exactly one demo story', async () => {

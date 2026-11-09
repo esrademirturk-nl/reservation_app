@@ -5,8 +5,10 @@ import {
   HealthIndicatorService,
 } from '@nestjs/terminus';
 import { sql } from 'drizzle-orm';
+import { Public } from '../auth/public.decorator';
 import { DB, type Database } from '../db/db.module';
 
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(

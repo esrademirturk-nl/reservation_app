@@ -1,6 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from './config/env';
+import { HttpExceptionFilter } from './common/http-exception.filter';
 
 /** Shared by main.ts and the e2e tests, so tests run the app exactly as production does. */
 export function setupApp<T extends INestApplication>(app: T): T {
@@ -13,6 +14,7 @@ export function setupApp<T extends INestApplication>(app: T): T {
       transform: true,
     }),
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
     origin: config
       .get('CORS_ORIGINS', { infer: true })
