@@ -42,13 +42,13 @@ export function Bookings({ trip }: { trip: Trip }) {
     ))
 
   return (
-    <div className={`grid gap-6 ${open ? 'grid-cols-[minmax(0,1fr)_400px]' : 'grid-cols-1'}`}>
+    <div className={`grid grid-cols-1 gap-6 ${open ? 'lg:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h2 className="text-2xl font-extrabold text-ink">
             {bs.length} bookings <span className="text-base font-semibold text-muted">· €{tripTotal(trip.id).toLocaleString('en')} total</span>
           </h2>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="flex items-center gap-2 rounded-xl bg-surface px-3 py-2 text-[13px] text-muted">
               Forward to <b className="text-ink">{user.forwardAddress}</b>
               <button onClick={() => navigator.clipboard?.writeText(user.forwardAddress)} aria-label="Copy"><Copy size={14} /></button>
@@ -110,8 +110,8 @@ function Coverage({ trip }: { trip: Trip }) {
   const hotels = bs.filter((b) => b.type === 'hotel')
 
   return (
-    <Card className="flex flex-col gap-4 p-6">
-      <div className="flex items-start justify-between">
+    <Card className="flex flex-col gap-4 p-4 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="font-bold text-ink">Trip coverage</h3>
           <p className="text-[13px] text-muted">Transport and stays from arrival to departure</p>
@@ -119,7 +119,7 @@ function Coverage({ trip }: { trip: Trip }) {
         <span className={`text-[13px] font-bold ${missing.length ? 'text-highlight' : 'text-success'}`}>{n - missing.length} of {n} nights covered</span>
       </div>
 
-      <div className="grid gap-y-3" style={{ gridTemplateColumns: `100px repeat(${days.length}, minmax(0,1fr))` }}>
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0"><div className="grid min-w-[620px] gap-y-3" style={{ gridTemplateColumns: `100px repeat(${days.length}, minmax(0,1fr))` }}>
         <span />
         {days.map((d) => (
           <span key={d} className="text-center text-xs font-bold uppercase text-muted">
@@ -159,10 +159,10 @@ function Coverage({ trip }: { trip: Trip }) {
             </Link>
           ))}
         </div>
-      </div>
+      </div></div>
 
       {missing.length > 0 && (
-        <div className="flex items-center gap-3 rounded-xl bg-highlight-soft px-4 py-3 text-sm text-on-highlight-soft">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-highlight-soft px-4 py-3 text-sm text-on-highlight-soft">
           <TriangleAlert size={18} />
           <span className="flex-1"><b>Night of {fmtDay(missing[0])} has no stay.</b> Check-out is {fmtDay(missing[0])} 11:00, your flight home leaves the next day.</span>
           <Link to="/suggestions" className="font-extrabold">Find a hotel</Link>
@@ -200,11 +200,11 @@ function BookingCard({ b, cancelled, selected, menuOpen, onMenu, onOpen, onTicke
   ]
 
   return (
-    <div className={`relative flex items-center gap-4 rounded-2xl border bg-surface p-4 transition-shadow hover:shadow-card ${selected ? 'border-link ring-1 ring-link' : 'border-line'} ${cancelled ? 'opacity-55' : ''}`}>
-      <button onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-4 text-left">
+    <div className={`relative flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border bg-surface p-4 transition-shadow hover:shadow-card ${selected ? 'border-link ring-1 ring-link' : 'border-line'} ${cancelled ? 'opacity-55' : ''}`}>
+      <button onClick={onOpen} className="flex min-w-0 basis-full items-center gap-4 text-left sm:basis-auto sm:flex-1">
         <span className="grid size-11 flex-none place-items-center rounded-xl bg-tint text-primary"><Icon size={20} /></span>
         <span className="min-w-0 flex-1">
-          <span className="block font-bold text-ink">{b.title}</span>
+          <span className="block pr-8 font-bold text-ink sm:pr-0">{b.title}</span>
           <span className="block text-sm text-ink">{when}</span>
           <span className="block text-xs text-muted">{source}</span>
           <span className="mt-1.5 flex gap-2">
@@ -218,22 +218,22 @@ function BookingCard({ b, cancelled, selected, menuOpen, onMenu, onOpen, onTicke
         </span>
       </button>
 
-      <span className="w-28 text-[13px]">
+      <span className="w-28 text-[13px] max-sm:ml-[60px]">
         <span className={`block text-base font-extrabold text-ink ${cancelled ? 'line-through' : ''}`}>{b.price ? `€${b.price}` : '—'}</span>
         <span className={b.paid ? 'font-semibold text-success' : 'text-muted'}>{b.price ? (b.paid ? 'Paid' : 'Pay at property') : 'No prepayment'}</span>
         <span className="flex items-center gap-1 font-bold text-ink">{b.ref}<button aria-label="Copy confirmation code" onClick={() => navigator.clipboard?.writeText(b.ref)} className="text-muted"><Copy size={12} /></button></span>
       </span>
 
-      <span className="w-40 text-right">
+      <span className="text-right max-sm:flex-1 sm:w-40">
         {b.hasPass ? (
-          <button onClick={onTicket} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[13px] font-bold text-white dark:text-on-primary"><QrCode size={14} /> Show ticket</button>
+          <button onClick={onTicket} className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3 py-1.5 text-[13px] font-bold text-white dark:text-on-primary"><QrCode size={14} /> Show ticket</button>
         ) : b.checkInOpens ? (
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-[13px] font-bold text-muted"><Clock size={14} /> Check-in {fmtDay(b.checkInOpens)}</span>
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-line px-3 py-1.5 text-[13px] font-bold text-muted"><Clock size={14} /> Check-in {fmtDay(b.checkInOpens)}</span>
         ) : null}
       </span>
 
-      <button aria-label="Original PDF" className="text-muted hover:text-ink"><Paperclip size={17} /></button>
-      <button aria-label="More" onClick={onMenu} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-tint hover:text-ink"><MoreHorizontal size={18} /></button>
+      <button aria-label="Original PDF" className="hidden text-muted hover:text-ink sm:block"><Paperclip size={17} /></button>
+      <button aria-label="More" onClick={onMenu} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-tint hover:text-ink max-sm:absolute max-sm:right-2 max-sm:top-2"><MoreHorizontal size={18} /></button>
 
       {menuOpen && (
         <div className="absolute right-4 top-14 z-30 w-56 overflow-hidden rounded-xl border border-line bg-surface py-1 shadow-card">
@@ -256,7 +256,7 @@ function Drawer({ b, onClose }: { b: Booking; onClose: () => void }) {
   const Icon = typeIcon[b.type]
   const isHotel = b.type === 'hotel'
   return (
-    <aside className="sticky top-[100px] flex max-h-[calc(100vh-120px)] flex-col gap-5 overflow-y-auto rounded-2xl border border-line bg-surface p-6">
+    <aside className="fixed inset-0 z-40 flex flex-col gap-5 overflow-y-auto bg-surface p-5 lg:sticky lg:inset-auto lg:top-[100px] lg:z-auto lg:max-h-[calc(100vh-120px)] lg:rounded-2xl lg:border lg:border-line lg:p-6">
       <div className="flex items-start gap-3">
         <span className="grid size-11 flex-none place-items-center rounded-xl bg-tint text-primary"><Icon size={20} /></span>
         <div className="flex-1">
@@ -331,7 +331,7 @@ export function TicketModal({ b, onClose }: { b: Booking; onClose: () => void })
   const Icon = typeIcon[b.type]
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-6" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <div className="flex w-[400px] flex-col items-center gap-4 rounded-2xl bg-surface p-7 shadow-card" onClick={(e) => e.stopPropagation()}>
+      <div className="flex w-full max-w-[400px] flex-col items-center gap-4 rounded-2xl bg-surface p-5 sm:p-7 shadow-card" onClick={(e) => e.stopPropagation()}>
         <div className="flex w-full items-start gap-3">
           <span className="grid size-10 place-items-center rounded-xl bg-tint text-primary"><Icon size={18} /></span>
           <div className="flex-1">
@@ -341,7 +341,7 @@ export function TicketModal({ b, onClose }: { b: Booking; onClose: () => void })
           <button onClick={onClose} aria-label="Close (Esc)" className="text-muted hover:text-ink"><X size={18} /></button>
         </div>
         <div className="rounded-2xl border border-line bg-white p-5">
-          <QRCodeSVG value={`WAYPAD|${b.ref}|${b.title}|${b.start}`} size={220} fgColor="#043263" />
+          <QRCodeSVG value={`WAYPAD|${b.ref}|${b.title}|${b.start}`} size={220} fgColor="#043263" className="h-auto w-full max-w-[220px]" />
         </div>
         <span className="flex items-center gap-2 rounded-lg bg-tint px-4 py-1.5 font-extrabold text-ink">
           {b.ref}

@@ -47,11 +47,11 @@ export function OrderBook() {
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
       <Link to={`/trips/${trip.id}/book`} className="flex items-center gap-1 text-sm font-bold text-link"><ChevronLeft size={16} /> Back to travel book</Link>
-      <h1 className="text-[32px] font-extrabold tracking-tight text-ink">Order printed book</h1>
+      <h1 className="text-[26px] font-extrabold tracking-tight text-ink sm:text-[32px]">Order printed book</h1>
 
-      <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-start gap-8">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
-          <div className="grid min-h-[520px] place-items-center rounded-2xl bg-[#f4f1ec] p-10 text-[13px] dark:bg-[#0b1c36]">
+          <div className="grid min-h-[360px] place-items-center rounded-2xl bg-[#f4f1ec] p-5 text-[9px] sm:min-h-[520px] sm:p-10 sm:text-[13px] dark:bg-[#0b1c36]">
             {view === 'spread' ? (
               <div className="w-full"><SpreadView trip={trip} theme={theme} spread="chapter" /></div>
             ) : (

@@ -34,8 +34,8 @@ export function AppShell() {
   const [dark, setDark] = useTheme()
 
   return (
-    <div className="grid min-h-screen grid-cols-[240px_minmax(0,1fr)] bg-bg">
-      <aside className="sticky top-0 flex h-screen flex-col border-r border-line bg-surface px-4 py-6">
+    <div className="min-h-screen bg-bg lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
+      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-surface px-4 py-6 lg:flex">
         <img src={`${import.meta.env.BASE_URL}${dark ? 'waypad-logo-dark.png' : 'waypad-logo-light.png'}`} alt="Waypad" className="mb-8 ml-2 h-7 w-auto self-start" />
         <nav className="flex flex-col gap-1">
           {nav.map(({ to, label, icon: Icon, end }) => (
@@ -59,8 +59,9 @@ export function AppShell() {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-20 flex h-[76px] items-center justify-between border-b border-line bg-surface/95 px-10 backdrop-blur">
-          <label className="flex w-[460px] items-center gap-3 rounded-xl border border-line bg-bg px-4 py-2.5 text-sm text-muted">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur sm:px-6 lg:h-[76px] lg:px-10">
+          <img src={`${import.meta.env.BASE_URL}${dark ? 'waypad-logo-dark.png' : 'waypad-logo-light.png'}`} alt="Waypad" className="h-6 w-auto lg:hidden" />
+          <label className="hidden min-w-0 flex-1 items-center md:flex lg:max-w-[460px] gap-3 rounded-xl border border-line bg-bg px-4 py-2.5 text-sm text-muted">
             <Search size={16} />
             <input className="flex-1 bg-transparent text-ink outline-none placeholder:text-muted" placeholder="Search trips, bookings, cities" />
             <kbd className="rounded-md border border-line bg-surface px-1.5 py-0.5 text-[11px] font-semibold">⌘K</kbd>
@@ -77,18 +78,38 @@ export function AppShell() {
               <Bell size={18} />
               <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-accent-decor" />
             </button>
+            <div className="lg:hidden"><AvatarMenu compact /></div>
           </div>
         </header>
-        <main className="flex-1 px-10 pb-16 pt-9">
+        <main className="flex-1 px-4 pb-28 pt-6 sm:px-6 lg:px-10 lg:pb-16 lg:pt-9">
           <Outlet />
         </main>
         <MiniPlayer />
       </div>
+
+      {/* Bottom tab bar on phones and tablets */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+        {nav.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) => `flex flex-col items-center gap-1 py-2.5 text-[11px] font-bold ${isActive ? 'text-primary' : 'text-muted'}`}
+          >
+            {({ isActive }) => (
+              <>
+                <span className={`grid h-7 w-12 place-items-center rounded-full ${isActive ? 'bg-tint' : ''}`}><Icon size={19} /></span>
+                {label}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   )
 }
 
-function AvatarMenu() {
+function AvatarMenu({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -105,9 +126,9 @@ function AvatarMenu() {
 
   const item = 'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold text-ink hover:bg-tint'
   return (
-    <div ref={ref} className="relative mt-auto">
+    <div ref={ref} className={compact ? 'relative' : 'relative mt-auto'}>
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-line bg-surface p-2 shadow-card">
+        <div className={`absolute z-50 rounded-xl border border-line bg-surface p-2 shadow-card ${compact ? 'right-0 top-12 w-64' : 'bottom-full left-0 right-0 mb-2'}`}>
           <div className="border-b border-line px-3 pb-3 pt-1">
             <p className="text-sm font-bold text-ink">{user.fullName}</p>
             <p className="truncate text-xs text-muted">{user.email}</p>
@@ -123,6 +144,11 @@ function AvatarMenu() {
           </div>
         </div>
       )}
+      {compact ? (
+        <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label="Account menu" className="grid size-9 place-items-center rounded-full bg-accent-decor text-sm font-bold text-white">
+          {user.initials}
+        </button>
+      ) : (
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
@@ -135,6 +161,7 @@ function AvatarMenu() {
         </span>
         <ChevronsUpDown size={16} className="text-muted" />
       </button>
+      )}
     </div>
   )
 }

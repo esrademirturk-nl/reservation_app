@@ -20,13 +20,13 @@ export function Suggestions() {
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-8">
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:gap-6">
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-[32px] font-extrabold tracking-tight text-ink">Suggestions</h1>
+            <h1 className="text-[26px] sm:text-[32px] font-extrabold tracking-tight text-ink">Suggestions</h1>
             <p className="mt-1 text-[15px] text-muted">Ideas to make your upcoming trips better</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {trips.map((t) => (
               <button key={t.id} onClick={() => setParams({ trip: t.id })} className={`rounded-full border px-4 py-2 text-sm font-bold ${t.id === tripId ? 'border-primary bg-primary text-white dark:text-on-primary' : 'border-line bg-surface text-ink hover:bg-tint'}`}>
                 {t.city}{t.id === tripId ? ` · ${fmtRange(t)}` : ''}
@@ -45,11 +45,11 @@ export function Suggestions() {
 
       {(suggestions[tripId] ?? []).map((section) => (
         <section key={section.id} className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-xl font-extrabold text-ink">{section.title}</h2>
             <span className={`rounded-full px-3 py-1 text-xs font-bold ${section.badge.tone === 'warn' ? 'bg-highlight-soft text-highlight' : 'bg-tint text-primary'}`}>{section.badge.label}</span>
           </div>
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {section.items.map((s) =>
               hidden.has(s.id) ? (
                 <div key={s.id} className="flex min-h-[200px] flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-line text-sm text-muted">

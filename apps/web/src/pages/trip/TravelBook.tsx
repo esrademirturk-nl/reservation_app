@@ -29,12 +29,12 @@ export function TravelBook({ trip }: { trip: Trip }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="text-2xl font-extrabold text-ink">Your {trip.city} travel book</h2>
           <p className="text-sm text-muted"><span className="mr-1 rounded-md bg-tint px-1.5 py-0.5 text-xs font-bold text-primary">Draft</span> 42 photos · 24 pages</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-semibold text-muted">Theme</span>
           <div className="flex rounded-xl border border-line bg-surface p-1">
             {themes.map((t) => (
@@ -46,9 +46,9 @@ export function TravelBook({ trip }: { trip: Trip }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_280px] items-start gap-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
             {themes.map((t) => (
               <button key={t.id} onClick={() => setTheme(t.id)} className={`flex items-center gap-3 rounded-2xl border-2 bg-surface p-2.5 text-left ${theme === t.id ? 'border-highlight' : 'border-line hover:border-muted'}`}>
                 <div className="w-14 flex-none overflow-hidden rounded text-[3px] shadow"><Cover trip={trip} theme={t.id} /></div>
@@ -60,7 +60,7 @@ export function TravelBook({ trip }: { trip: Trip }) {
             ))}
           </div>
 
-          <div className="rounded-2xl bg-[#ece7df] p-10 text-[13px] dark:bg-[#0b1c36]">
+          <div className="rounded-2xl bg-[#ece7df] p-4 text-[8px] sm:p-10 sm:text-[13px] dark:bg-[#0b1c36]">
             <SpreadView trip={trip} theme={theme} spread={spread} />
           </div>
 
@@ -76,7 +76,7 @@ export function TravelBook({ trip }: { trip: Trip }) {
           </div>
         </div>
 
-        <Card className="sticky top-[100px] flex flex-col gap-4 p-5">
+        <Card className="flex flex-col gap-4 p-5 lg:sticky lg:top-[100px]">
           <div>
             <h3 className="font-bold text-ink">Photos</h3>
             <p className="text-xs text-muted">42 photos · auto-sorted by day</p>
