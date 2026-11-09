@@ -20,6 +20,8 @@ export const envSchema = z.object({
   FORWARD_DOMAIN: z.string().default('in.waypad.app'),
   /** Redis for the import queue. Without it imports are processed inside the request (dev/tests). */
   REDIS_URL: optional(z.url({ protocol: /^rediss?$/ })),
+  /** "false" on API replicas that should not read imports (run a separate worker container instead) */
+  IMPORT_WORKER: z.enum(['true', 'false']).default('true'),
   /** where uploaded files and raw emails are kept (local disk; Azure Blob in production later) */
   STORAGE_DIR: z.string().default('./storage'),
   UPLOAD_MAX_MB: z.coerce.number().positive().max(50).default(10),

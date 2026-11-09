@@ -22,7 +22,9 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:migrate:prod": "node dist/db/migrate.js",
+    "db:seed:prod": "node dist/db/seed/seed.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

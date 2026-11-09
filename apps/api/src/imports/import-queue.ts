@@ -53,6 +53,17 @@ export class ImportQueue implements OnModuleInit, OnApplicationShutdown {
     if (!url) return;
     const connection = redisConnection(url);
     this.queue = new Queue('imports', { connection });
+    await this.queue.upsertJobScheduler(
+      'purge-raw-emails',
+      { pattern: '0 3 * * *' },
+      { name: 'purge', data: {} },
+    );
+    if (this.config.get('IMPORT_WORKER', { infer: true }) === 'false') {
+      this.log.log(
+        'Import queue connected to Redis (this instance only adds jobs)',
+      );
+      return;
+    }
     this.worker = new Worker(
       'imports',
       async (job) => {
@@ -68,12 +79,7 @@ export class ImportQueue implements OnModuleInit, OnApplicationShutdown {
     this.worker.on('failed', (job, err) =>
       this.log.warn(`Job ${job?.id} failed: ${err.message}`),
     );
-    await this.queue.upsertJobScheduler(
-      'purge-raw-emails',
-      { pattern: '0 3 * * *' },
-      { name: 'purge', data: {} },
-    );
-    this.log.log('Import queue connected to Redis');
+    this.log.log('Import queue connected to Redis, worker running');
   }
 
   async enqueue(documentId: string, hint?: string) {
