@@ -14,7 +14,7 @@ export async function createTestApp() {
     imports: [AppModule],
   }).compile();
   const app = setupApp(
-    moduleRef.createNestApplication<INestApplication<App>>(),
+    moduleRef.createNestApplication<INestApplication<App>>({ rawBody: true }),
   );
   await app.init();
   return app;

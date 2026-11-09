@@ -5,7 +5,7 @@ import { setupApp } from './setup-app';
 import type { Env } from './config/env';
 
 async function bootstrap() {
-  const app = setupApp(await NestFactory.create(AppModule));
+  const app = setupApp(await NestFactory.create(AppModule, { rawBody: true }));
   const port = app
     .get<ConfigService<Env, true>>(ConfigService)
     .get('PORT', { infer: true });

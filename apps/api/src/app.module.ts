@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { validateEnv } from './config/env';
 import { DbModule } from './db/db.module';
 import { HealthModule } from './health/health.module';
+import { ImportsModule } from './imports/imports.module';
+import { StorageModule } from './storage/storage';
 import { ReservationsModule } from './reservations/reservations.module';
 import { TripsModule } from './trips/trips.module';
 import { UsersModule } from './users/users.module';
@@ -28,6 +30,8 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     TripsModule,
     ReservationsModule,
+    StorageModule,
+    ImportsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

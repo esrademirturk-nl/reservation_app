@@ -213,9 +213,17 @@ export const sourceDocuments = pgTable('source_documents', {
   }),
   kind: documentKindEnum('kind').notNull(),
   fileName: text('file_name'),
+  /** '' once the raw content has been purged */
   blobPath: text('blob_path').notNull(),
+  mimeType: varchar('mime_type', { length: 100 })
+    .notNull()
+    .default('application/octet-stream'),
   status: documentStatusEnum('status').notNull().default('processing'),
+  /** shown to the user, e.g. "We couldn't find a booking in this file" */
   error: text('error'),
+  /** which reader was used: "claude" or "rules" */
+  extractor: varchar('extractor', { length: 32 }),
+  processedAt: timestamp('processed_at', { withTimezone: true }),
   createdAt: createdAt(),
 });
 
@@ -319,6 +327,12 @@ export const tripMembersRelations = relations(tripMembers, ({ one }) => ({
   trip: one(trips, { fields: [tripMembers.tripId], references: [trips.id] }),
   user: one(users, { fields: [tripMembers.userId], references: [users.id] }),
 }));
+export const sourceDocumentsRelations = relations(
+  sourceDocuments,
+  ({ many }) => ({
+    reservations: many(reservations),
+  }),
+);
 export const reservationsRelations = relations(reservations, ({ one }) => ({
   trip: one(trips, { fields: [reservations.tripId], references: [trips.id] }),
   user: one(users, { fields: [reservations.userId], references: [users.id] }),
