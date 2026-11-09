@@ -9,6 +9,10 @@ The demo is set on **Friday 30 October 2026**, 13 days before a Rome trip.
 ## 1. The problem (30 s)
 "A four-day city trip easily has bookings in five places: the hotel on Booking.com, flights in a KLM email, a train ticket as a PDF, museum tickets in another inbox. Waypad brings them together and keeps an eye on the trip."
 
+## 1b. First visit (30 s) — Demo → New user
+- "A new user starts here: no trips yet." Point at the three ways in: forward an email, upload a file, add manually.
+- Switch back with **Explore with a sample trip** (or Demo → Before the trip).
+
 ## 2. Dashboard (1 min) — `/`
 - Hero: **Rome, in 13 days**, readiness 3/4.
 - **Recently added:** "This hotel arrived two hours ago from Booking.com. I only forwarded the email to my personal Waypad address."
@@ -20,6 +24,7 @@ The demo is set on **Friday 30 October 2026**, 13 days before a Rome trip.
 - **Trip coverage:** "Transport and every night on one line; the orange block is the missing night."
 - Open **Hotel Roma Centro**: "If the importer isn't sure about a field, it asks me to check it."
 - Click **No stay · Add** → Suggestions: three hotels within walking distance of the current one.
+- **Fix it live:** back on the Bookings tab, click **Add booking** → *or try a sample confirmation*. Show the document preview, the confidence per field and the one orange **Please check** (two check-out times in the PDF). Pick 11:00 → **Save booking**. The summary says "All 4 nights now have a stay — trip ready 4/4", and the dashboard alert is gone.
 
 ## 4. Planning (1 min) — Day plan
 - Day plan, **Fri 13**: Booked (Colosseum, dinner), Planned (Trevi) and **Free time** with suggestions.
@@ -34,8 +39,9 @@ The demo is set on **Friday 30 October 2026**, 13 days before a Rome trip.
 - Press play on the **audio guide**; the transcript follows along. Switch to **Türkçe**.
 - Click **My trips** in the menu: the mini player keeps playing.
 
-## 7. Back home (45 s) — Travel book
-- Rome trip → **Travel book**. Switch **Editorial → Bold → Minimal**.
+## 7. Back home (45 s) — Demo → Back from Rome
+- The dashboard now says **Welcome back from Rome!** and the next trip is Prague.
+- **Create travel book** → switch **Editorial → Bold → Minimal**.
 - **Order printed book** → choose Medium hardcover → Place order.
 
 ## 8. Phone (optional, 20 s)

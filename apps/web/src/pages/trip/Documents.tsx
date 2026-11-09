@@ -3,6 +3,7 @@ import { Download, Eye, FileText, Mail, UploadCloud, WifiOff } from 'lucide-reac
 import type { Booking, Trip } from '../../data/types'
 import { bookingsFor, fmtDay } from '../../lib/trips'
 import { Card, typeIcon } from '../../components/ui'
+import { useAddBooking } from '../../components/AddBooking'
 
 /** Every imported booking keeps its original email or PDF. Manual bookings have none. */
 export const documentsFor = (tripId: string) => bookingsFor(tripId).filter((b) => b.source !== 'Manual')
@@ -12,6 +13,7 @@ const docName = (b: Booking) =>
 
 export function Documents({ trip }: { trip: Trip }) {
   const docs = documentsFor(trip.id)
+  const addBooking = useAddBooking()
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="flex flex-col gap-4">
@@ -45,7 +47,7 @@ export function Documents({ trip }: { trip: Trip }) {
       </div>
 
       <div className="flex flex-col gap-4">
-        <button className="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-link/50 bg-surface p-8 text-center hover:bg-tint/40">
+        <button onClick={() => addBooking(trip.id)} className="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-link/50 bg-surface p-8 text-center hover:bg-tint/40">
           <UploadCloud size={28} className="text-link" />
           <span className="font-bold text-ink">Drop a PDF or screenshot</span>
           <span className="text-xs text-muted">We'll read it and add the booking to this trip</span>

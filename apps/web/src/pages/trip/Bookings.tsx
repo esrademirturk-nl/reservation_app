@@ -9,6 +9,7 @@ import type { Booking, Trip } from '../../data/types'
 import { user } from '../../data/demo'
 import { bookingsFor, fmtDay, fmtDayLong, fmtTime, missingNights, nights, tripDays, tripTotal } from '../../lib/trips'
 import { Card, typeIcon } from '../../components/ui'
+import { useAddBooking } from '../../components/AddBooking'
 
 const groups = [
   { label: 'Transport', types: ['flight', 'train'] },
@@ -18,6 +19,7 @@ const groups = [
 
 export function Bookings({ trip }: { trip: Trip }) {
   const [params, setParams] = useSearchParams()
+  const addBooking = useAddBooking()
   const [cancelled, setCancelled] = useState<Set<string>>(new Set())
   const [menu, setMenu] = useState<string | null>(null)
   const [groupBy, setGroupBy] = useState<'type' | 'date'>('type')
@@ -53,7 +55,7 @@ export function Bookings({ trip }: { trip: Trip }) {
               Forward to <b className="text-ink">{user.forwardAddress}</b>
               <button onClick={() => navigator.clipboard?.writeText(user.forwardAddress)} aria-label="Copy"><Copy size={14} /></button>
             </span>
-            <button className="flex items-center gap-2 rounded-xl bg-highlight px-4 py-2.5 text-sm font-bold text-white"><Plus size={16} /> Add booking</button>
+            <button onClick={() => addBooking(trip.id)} className="flex items-center gap-2 rounded-xl bg-highlight px-4 py-2.5 text-sm font-bold text-white"><Plus size={16} /> Add booking</button>
           </div>
         </div>
 
