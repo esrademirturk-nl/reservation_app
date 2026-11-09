@@ -85,12 +85,12 @@ export function TripsMap({ trips, nextId }: Props) {
           >
             <span className="flex flex-col items-center">
               <span
-                className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-white shadow-pop transition-transform group-hover:-translate-y-0.5 ${
+                className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-pop sm:px-3 sm:py-1 sm:text-xs transition-transform group-hover:-translate-y-0.5 ${
                   isNext ? 'bg-highlight' : 'bg-primary dark:text-on-primary'
                 }`}
               >
                 {t.city}
-                {isNext && ' · Next trip'}
+                {isNext && <span className="hidden sm:inline"> · Next trip</span>}
               </span>
               <span className={`mt-0.5 size-3 rounded-full border-2 border-white ${isNext ? 'bg-highlight' : 'bg-primary'}`} />
             </span>

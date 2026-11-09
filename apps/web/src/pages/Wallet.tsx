@@ -31,7 +31,7 @@ export function Wallet() {
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[32px] font-extrabold tracking-tight text-ink">Wallet</h1>
           <p className="mt-1 text-[15px] text-muted">Tickets and passes from your bookings · all available offline</p>
@@ -61,13 +61,13 @@ export function Wallet() {
             if (!items.length) return null
             return (
               <section key={t.id} className="flex flex-col gap-3">
-                <div className="flex items-baseline justify-between">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="text-lg font-extrabold text-ink">
                     {t.city}, {t.country} <span className="ml-1 text-sm font-semibold text-muted">{fmtRange(t)} · in {daysUntil(t.start)} days</span>
                   </h2>
                   <Link to={`/trips/${t.id}/plan`} className="text-sm font-bold text-link">Open planner →</Link>
                 </div>
-                <div className="grid grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {items.map((b) => <PassCard key={b.id} b={b} onQr={setQr} />)}
                 </div>
               </section>
@@ -82,7 +82,7 @@ export function Wallet() {
             <h2 className="text-lg font-extrabold text-ink">
               {t.city}, {t.country} <span className="ml-1 text-sm font-semibold text-muted">{fmtRange(t)} · completed</span>
             </h2>
-            <div className="grid grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {used.filter((b) => b.tripId === t.id).map((b) => <PassCard key={b.id} b={b} used onQr={setQr} />)}
             </div>
           </section>
@@ -98,7 +98,7 @@ function Shell({ b, right, top, bottom, used, className = '' }: { b: Booking; ri
   const c = band(b)
   return (
     <div className={`relative overflow-hidden rounded-2xl border border-line bg-surface ${used ? 'opacity-60 grayscale' : ''} ${className}`}>
-      <div className={`flex items-center justify-between px-5 py-2.5 text-xs font-extrabold tracking-wider text-white ${c.bg}`}>
+      <div className={`flex flex-wrap items-center justify-between gap-2 px-5 py-2.5 text-xs font-extrabold tracking-wider text-white ${c.bg}`}>
         <span>{b.provider}</span>
         {right ?? <span>{c.label.toUpperCase()}</span>}
       </div>
@@ -169,26 +169,26 @@ function BigFlight({ b }: { b: Booking }) {
       b={b}
       right={<span>FLIGHT · IN {daysUntil(b.start)} DAYS</span>}
       top={
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           <div>
-            <p className="text-5xl font-extrabold text-ink">{from}</p>
+            <p className="text-3xl font-extrabold text-ink sm:text-5xl">{from}</p>
             <p className="text-sm font-semibold text-muted">{fmtTime(b.start)} · {b.location.split(' → ')[0]}</p>
           </div>
           <div className="relative flex-1 border-t-2 border-dashed border-line">
             <Plane size={20} className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 bg-surface text-primary" />
           </div>
           <div className="text-right">
-            <p className="text-5xl font-extrabold text-ink">{to}</p>
+            <p className="text-3xl font-extrabold text-ink sm:text-5xl">{to}</p>
             <p className="text-sm font-semibold text-muted">{fmtTime(b.end!)} · {b.location.split(' → ')[1]}</p>
           </div>
         </div>
       }
       bottom={
-        <div className="flex items-center gap-10">
+        <div className="flex flex-wrap items-center gap-x-10 gap-y-3">
           <F label="DATE" value={`${fmtWeekday(b.start)} ${fmtDay(b.start)}`} />
           <F label="DEPARTS" value={fmtTime(b.start)} />
           <F label="CONFIRMATION" value={b.ref} />
-          <span className="ml-auto flex items-center gap-1.5 rounded-full bg-tint px-3 py-1.5 text-xs font-bold text-muted"><Clock size={13} /> Check-in opens {fmtDay(b.checkInOpens!)} · Boarding pass will appear here</span>
+          <span className="flex items-center gap-1.5 rounded-full bg-tint px-3 py-1.5 text-xs font-bold text-muted sm:ml-auto"><Clock size={13} /> Check-in opens {fmtDay(b.checkInOpens!)} · Boarding pass will appear here</span>
         </div>
       }
     />
@@ -203,13 +203,13 @@ function TravelDay({ onQr }: { onQr: (b: Booking) => void }) {
   const [from, to] = route(flight).split(' → ')
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3 rounded-xl bg-tint/60 px-5 py-3 text-sm text-ink">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-tint/60 px-5 py-3 text-sm text-ink">
         <Sun size={16} className="text-highlight" />
         <b>Today · Thu 12 Nov · Rome trip, Day 1</b>
         <span className="text-muted">Preview of your travel day — check-in is done and your boarding pass has arrived.</span>
       </div>
 
-      <div className="grid grid-cols-[56px_24px_minmax(0,820px)] gap-x-3 gap-y-3">
+      <div className="grid grid-cols-[40px_14px_minmax(0,1fr)] gap-x-2 gap-y-3 sm:grid-cols-[56px_24px_minmax(0,820px)] sm:gap-x-3">
         <span className="pt-2 text-sm font-bold text-ink">08:40</span>
         <span className="relative mt-3 size-3.5 justify-self-center rounded-full bg-primary after:absolute after:left-1/2 after:top-5 after:h-[420px] after:w-0.5 after:-translate-x-1/2 after:bg-line" />
         <Shell
@@ -217,28 +217,28 @@ function TravelDay({ onQr }: { onQr: (b: Booking) => void }) {
           
           right={
             <span className="flex gap-2">
-              <span className="rounded-full bg-highlight px-2.5 py-0.5 text-[11px] text-white">Boarding in 45 min</span>
-              <span className="rounded-full bg-success px-2.5 py-0.5 text-[11px] text-white">✓ Checked in</span>
+              <span className="whitespace-nowrap rounded-full bg-highlight px-2.5 py-0.5 text-[11px] text-white">Boarding in 45 min</span>
+              <span className="whitespace-nowrap rounded-full bg-success px-2.5 py-0.5 text-[11px] text-white">✓ Checked in</span>
             </span>
           }
           top={
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 sm:gap-6">
               <div>
-                <p className="text-5xl font-extrabold text-ink">{from}</p>
+                <p className="text-3xl font-extrabold text-ink sm:text-5xl">{from}</p>
                 <p className="text-sm font-semibold text-muted">Amsterdam · {fmtTime(flight.start)}</p>
               </div>
               <div className="relative flex-1 border-t-2 border-dashed border-line">
                 <Plane size={20} className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 bg-surface text-primary" />
               </div>
               <div className="text-right">
-                <p className="text-5xl font-extrabold text-ink">{to}</p>
+                <p className="text-3xl font-extrabold text-ink sm:text-5xl">{to}</p>
                 <p className="text-sm font-semibold text-muted">Rome · {fmtTime(flight.end!)}</p>
               </div>
             </div>
           }
           bottom={
-            <div className="flex items-center gap-6">
-              <div className="grid flex-1 grid-cols-3 gap-y-3">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+              <div className="grid flex-1 grid-cols-2 gap-y-3 sm:grid-cols-3">
                 <F label="PASSENGER" value={user.fullName} />
                 <F label="FLIGHT" value="KL 1597" />
                 <F label="SEAT" value="14C" />
@@ -246,7 +246,7 @@ function TravelDay({ onQr }: { onQr: (b: Booking) => void }) {
                 <F label="BOARDING" value="08:00" />
                 <F label="GROUP" value="3" />
               </div>
-              <div className="flex flex-col items-center gap-1 border-l border-dashed border-line pl-6">
+              <div className="flex flex-col items-center gap-1 border-t border-dashed border-line pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
                 <button onClick={() => onQr(boarding)} aria-label="Enlarge boarding pass QR" className="rounded-lg border border-line bg-white p-2 hover:shadow-pop">
                   <QRCodeSVG value={`WAYPAD|BOARDING|${flight.ref}|KL1597|14C`} size={140} fgColor="#043263" />
                 </button>
@@ -257,7 +257,7 @@ function TravelDay({ onQr }: { onQr: (b: Booking) => void }) {
         />
         <span />
         <span />
-        <p className="flex items-center gap-2 text-[13px] font-semibold text-muted">
+        <p className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-muted">
           <Plane size={13} /> Arrive Rome {fmtTime(flight.end!)} · Hotel check-in from {fmtTime(hotel.start)} ·{' '}
           <Link to="/trips/rome/plan?day=1" className="font-bold text-link">Plan your free time ›</Link>
         </p>
@@ -267,7 +267,7 @@ function TravelDay({ onQr }: { onQr: (b: Booking) => void }) {
         <Shell
           b={hotel}
           
-          right={<span>BOOKING.COM · HOTEL</span>}
+          right={<span>HOTEL</span>}
           top={
             <>
               <p className="text-2xl font-extrabold text-ink">{hotel.title}</p>
@@ -275,11 +275,11 @@ function TravelDay({ onQr }: { onQr: (b: Booking) => void }) {
             </>
           }
           bottom={
-            <div className="flex items-center gap-8">
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
               <F label="CHECK-IN" value={fmtTime(hotel.start)} />
               <F label="NIGHTS" value={String(nights({ start: hotel.start.slice(0, 10), end: hotel.end!.slice(0, 10) } as never))} />
               <F label="CONFIRMATION" value={hotel.ref} />
-              <span className="ml-auto flex gap-2">
+              <span className="flex gap-2 sm:ml-auto">
                 <button className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[13px] font-bold text-ink hover:bg-tint"><Navigation size={14} /> Directions</button>
                 <button className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[13px] font-bold text-ink hover:bg-tint"><Phone size={14} /> Call hotel</button>
               </span>
@@ -305,14 +305,14 @@ function QrView({ b, onClose }: { b: Booking; onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-6" onClick={onClose}>
-      <div className="flex w-[420px] flex-col items-center gap-4 rounded-3xl bg-white p-7 text-[#043263]" onClick={(e) => e.stopPropagation()}>
+      <div className="flex w-full max-w-[420px] flex-col items-center gap-4 rounded-3xl bg-white p-5 sm:p-7 text-[#043263]" onClick={(e) => e.stopPropagation()}>
         <div className="flex w-full items-center gap-3">
           <span className="grid size-9 place-items-center rounded-xl bg-[#dbe5ff]">{b.type === 'flight' ? <Plane size={17} /> : <Ticket size={17} />}</span>
           <p className="flex-1 font-extrabold">{b.title}</p>
           <button onClick={onClose} aria-label="Close"><X size={20} /></button>
         </div>
         <div className="rounded-2xl border border-[#d5dded] p-5">
-          <QRCodeSVG value={`WAYPAD|${ref}|${b.start}`} size={280} fgColor="#043263" />
+          <QRCodeSVG value={`WAYPAD|${ref}|${b.start}`} size={280} fgColor="#043263" className="h-auto w-full max-w-[280px]" />
         </div>
         {count > 1 && (
           <div className="flex items-center gap-4 text-sm font-bold">

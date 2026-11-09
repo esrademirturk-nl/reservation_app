@@ -26,13 +26,13 @@ export function MyTrips() {
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-[32px] font-extrabold tracking-tight text-ink">My trips</h1>
+          <h1 className="text-[26px] sm:text-[32px] font-extrabold tracking-tight text-ink">My trips</h1>
           <p className="mt-1 text-[15px] text-muted">All your trips in one place</p>
         </div>
-        <div className="flex items-center gap-3">
-          <label className="flex w-60 items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-muted">
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex min-w-0 flex-1 md:w-60 md:flex-none items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-muted">
             <Search size={16} />
             <input value={q} onChange={(e) => setQ(e.target.value)} className="w-full bg-transparent text-ink outline-none placeholder:text-muted" placeholder="Search trips" />
           </label>
@@ -47,7 +47,7 @@ export function MyTrips() {
         </div>
       </div>
 
-      <div className="flex gap-8 border-b border-line">
+      <div className="flex gap-6 overflow-x-auto border-b border-line sm:gap-8">
         {tabs.map((t) => (
           <button key={t.id} onClick={() => setParams(t.id === 'upcoming' ? {} : { tab: t.id })} className={`-mb-px border-b-2 pb-3 text-[15px] font-bold ${tab === t.id ? 'border-primary text-ink' : 'border-transparent text-muted hover:text-ink'}`}>
             {t.label} <span className="ml-1 rounded-md bg-tint px-1.5 text-xs text-primary">{t.n}</span>
@@ -70,7 +70,7 @@ export function MyTrips() {
           {unsorted.map((b) => {
             const Icon = typeIcon[b.type]
             return (
-              <Card key={b.id} className="flex items-center gap-4 p-4">
+              <Card key={b.id} className="flex flex-wrap items-center gap-4 p-4">
                 <span className="grid size-11 place-items-center rounded-xl bg-tint text-primary"><Icon size={20} /></span>
                 <div className="flex-1">
                   <p className="font-bold text-ink">{b.title}</p>
@@ -88,7 +88,7 @@ export function MyTrips() {
           <p className="font-bold text-ink">{q ? 'No trips match your search' : tab === 'past' ? 'No past trips yet' : 'No upcoming trips'}</p>
         </Card>
       ) : view === 'grid' ? (
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((t) => <GridCard key={t.id} trip={t} past={tab === 'past'} />)}
         </div>
       ) : (
@@ -139,11 +139,11 @@ function ListRow({ trip, past }: { trip: Trip; past: boolean }) {
   return (
     <Link to={`/trips/${trip.id}`} className="flex items-center gap-4 px-5 py-3 hover:bg-tint/40">
       <Photo src={trip.photo} alt={trip.city} className="h-12 w-16 rounded-lg" />
-      <span className="w-48 font-bold text-ink">{trip.city}, {trip.country}</span>
-      <span className="w-48 text-sm text-muted">{fmtRange(trip, true)}</span>
-      <span className="w-28 text-sm text-muted">{bookingsFor(trip.id).length} bookings</span>
+      <span className="w-36 font-bold text-ink sm:w-48">{trip.city}, {trip.country}</span>
+      <span className="hidden w-48 text-sm text-muted md:block">{fmtRange(trip, true)}</span>
+      <span className="hidden w-28 text-sm text-muted md:block">{bookingsFor(trip.id).length} bookings</span>
       <span className="flex-1"><Status trip={trip} past={past} /></span>
-      {!past && <span className="text-sm font-bold text-ink">In {daysUntil(trip.start)} days</span>}
+      {!past && <span className="hidden text-sm font-bold text-ink sm:block">In {daysUntil(trip.start)} days</span>}
     </Link>
   )
 }

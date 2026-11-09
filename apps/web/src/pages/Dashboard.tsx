@@ -32,7 +32,7 @@ export function Dashboard() {
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-7">
       <div>
-        <h1 className="text-[32px] font-extrabold tracking-tight text-ink">Good evening, {user.firstName}</h1>
+        <h1 className="text-[26px] sm:text-[32px] font-extrabold tracking-tight text-ink">Good evening, {user.firstName}</h1>
         <p className="mt-1 text-[15px] text-muted">
           {fmtLongToday()} · {trips.length} trips coming up
         </p>
@@ -40,9 +40,9 @@ export function Dashboard() {
 
       {next && <Hero trip={next} />}
 
-      <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Card className="overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4">
             <h2 className="text-base font-bold text-ink">Your trips on the map</h2>
             <div className="flex gap-4 text-[13px] font-semibold text-muted">
               <span className="flex items-center gap-1.5">
@@ -85,7 +85,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <ComingUp />
         <RecentlyAdded />
       </div>
@@ -97,7 +97,7 @@ export function Dashboard() {
             See all trips
           </Link>
         </div>
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {later.map((t) => (
             <TripCard key={t.id} trip={t} />
           ))}
@@ -118,19 +118,22 @@ function Hero({ trip }: { trip: Trip }) {
 
   return (
     <section className="relative min-h-[340px] overflow-hidden rounded-[20px] bg-hero">
-      <Photo src={trip.photo} alt={trip.city} className="!absolute inset-y-0 right-0 w-[65%]" />
+      <Photo src={trip.photo} alt={trip.city} className="!absolute inset-0 sm:left-auto sm:w-[65%]" />
       {/* solid brand blue on the left 35%, soft fade to transparent at 70% */}
       <div
         className="absolute inset-0"
         style={{ background: 'linear-gradient(90deg, var(--c-hero) 0%, var(--c-hero) 35%, color-mix(in srgb, var(--c-hero) 70%, transparent) 50%, transparent 70%)' }}
       />
+      {/* on phones the photo sits behind the text, so darken it evenly */}
+      <div className="absolute inset-0 bg-hero/75 sm:hidden"
+      />
 
-      <div className="relative flex max-w-[520px] flex-col gap-4 p-10">
+      <div className="relative flex max-w-[520px] flex-col gap-4 p-6 sm:p-10">
         <span className="w-fit rounded-full bg-highlight-soft px-3 py-1 text-xs font-extrabold tracking-[0.12em] text-highlight">
           IN {daysUntil(trip.start)} DAYS
         </span>
         <div>
-          <h2 className="text-[48px] font-extrabold leading-none tracking-tight text-white">
+          <h2 className="text-[34px] sm:text-[48px] font-extrabold leading-none tracking-tight text-white">
             {trip.city}, {trip.country}
           </h2>
           <p className="mt-3 flex items-center gap-2 text-[15px] font-medium text-white/80">
@@ -174,7 +177,7 @@ function Hero({ trip }: { trip: Trip }) {
           )}
         </div>
 
-        <div className="mt-1 flex gap-3">
+        <div className="mt-1 flex flex-wrap gap-3">
           <Link to={`/trips/${trip.id}/plan`} className="rounded-xl bg-highlight px-5 py-3 text-[15px] font-bold text-white hover:brightness-110">
             View day plan
           </Link>
@@ -279,7 +282,7 @@ function RecentlyAdded() {
           )
         })}
       </ul>
-      <div className="mt-auto flex items-center gap-3 rounded-xl bg-bg px-4 py-3 text-[13px] text-muted">
+      <div className="mt-auto flex flex-wrap items-center gap-3 rounded-xl bg-bg px-4 py-3 text-[13px] text-muted">
         Forward booking emails to <b className="text-ink">{user.forwardAddress}</b>
         <button
           onClick={() => navigator.clipboard?.writeText(user.forwardAddress)}

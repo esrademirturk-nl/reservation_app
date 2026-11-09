@@ -36,9 +36,9 @@ export function DayPlan({ trip }: { trip: Trip }) {
   const idx = Math.min(Number(params.get('day') ?? 2) - 1, days.length - 1)
   const day = days[Math.max(0, idx)]
   const missing = new Set(missingNights(trip))
-  const [nearbyOpen, setNearbyOpen] = useState(false)
+  const [nearbyOpen, setNearbyOpen] = useState(params.get('nearby') === '1')
   const [askLocation, setAskLocation] = useState(false)
-  const [shared, setShared] = useState(false)
+  const [shared, setShared] = useState(params.get('nearby') === '1')
   const [category, setCategory] = useState<keyof typeof nearby>('Food')
 
   const items: Item[] = [
@@ -73,7 +73,7 @@ export function DayPlan({ trip }: { trip: Trip }) {
     if (!k) return null
     const metro = k > 1.2
     return (
-      <div className="flex items-center gap-2 py-1 pl-[124px] text-[13px] font-semibold text-muted">
+      <div className="flex items-center gap-2 py-1 pl-[80px] text-[13px] sm:pl-[124px] font-semibold text-muted">
         {metro ? <TrainFront size={14} /> : <Footprints size={14} />}
         {metro ? `Metro · ${Math.round(k * 5)} min` : `${Math.max(3, Math.round(k * 12))} min walk · ${k.toFixed(1)} km`}
       </div>
@@ -82,12 +82,12 @@ export function DayPlan({ trip }: { trip: Trip }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="-mx-4 flex items-center gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {days.map((dd, i) => (
           <button
             key={dd}
-            onClick={() => setParams({ day: String(i + 1) })}
-            className={`relative rounded-xl border px-4 py-2 text-center leading-tight transition-colors ${dd === day ? 'border-primary bg-primary text-white dark:text-on-primary' : 'border-line bg-surface text-ink hover:bg-tint'}`}
+            onClick={() => setParams(nearbyOpen ? { day: String(i + 1), nearby: '1' } : { day: String(i + 1) })}
+            className={`relative flex-none rounded-xl border px-4 py-2 text-center leading-tight transition-colors ${dd === day ? 'border-primary bg-primary text-white dark:text-on-primary' : 'border-line bg-surface text-ink hover:bg-tint'}`}
           >
             <span className="block text-sm font-bold">{fmtWeekday(dd)} {Number(dd.slice(8))}</span>
             <span className={`block text-xs ${dd === day ? 'opacity-80' : 'text-muted'}`}>Day {i + 1}</span>
@@ -96,27 +96,27 @@ export function DayPlan({ trip }: { trip: Trip }) {
         ))}
         <button
           onClick={() => (shared ? setNearbyOpen(!nearbyOpen) : setAskLocation(true))}
-          className={`ml-auto flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${nearbyOpen ? 'bg-accent-decor text-white' : 'border border-line bg-surface text-ink hover:bg-tint'}`}
+          className={`ml-auto flex flex-none items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${nearbyOpen ? 'bg-accent-decor text-white' : 'border border-line bg-surface text-ink hover:bg-tint'}`}
         >
           <LocateFixed size={16} /> Near me
         </button>
       </div>
 
-      <div className="flex items-baseline gap-6">
+      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
         <h2 className="text-xl font-extrabold text-ink">{fmtWeekday(day)} {fmtDay(day)}</h2>
         <span className="text-sm font-semibold text-muted">{items.filter((i) => i.kind !== 'free').length} stops</span>
         {km > 0 && <span className="text-sm font-semibold text-muted">{km.toFixed(1)} km walking</span>}
         {cost > 0 && <span className="text-sm font-semibold text-muted">~€{cost}</span>}
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_420px] items-start gap-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
         <div className="flex flex-col">
           {items.length === 0 && <Card className="p-6 text-sm text-muted">Nothing planned yet for this day.</Card>}
           {items.map((it, i) => (
             <div key={it.key}>
               {i > 0 && connector(items[i - 1], it)}
-              <div className="group grid grid-cols-[72px_32px_1fr] items-start gap-2 py-1.5">
-                <span className="pt-3 text-right text-[15px] font-bold leading-tight text-ink">
+              <div className="group grid grid-cols-[44px_20px_minmax(0,1fr)] items-start gap-2 py-1.5 sm:grid-cols-[72px_32px_minmax(0,1fr)]">
+                <span className="pt-3 text-right text-[13px] font-bold leading-tight text-ink sm:text-[15px]">
                   {fmtTime(it.at)}
                   {it.kind === 'free' && <span className="block text-muted">–{fmtTime(it.end)}</span>}
                 </span>
@@ -128,9 +128,9 @@ export function DayPlan({ trip }: { trip: Trip }) {
                   <div className="flex flex-col gap-2.5 rounded-2xl bg-tint/60 p-4">
                     <p className="text-[15px] font-bold text-ink">Free time <span className="font-semibold text-muted">· 3 h · Suggestions nearby</span></p>
                     {it.suggestions.map((s) => (
-                      <div key={s.id} className="flex items-center gap-3 rounded-xl border border-dashed border-link/50 bg-surface px-4 py-3">
-                        <Sparkles size={16} className="text-accent-decor" />
-                        <div className="flex-1">
+                      <div key={s.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-link/50 bg-surface px-4 py-3">
+                        <Sparkles size={16} className="hidden text-accent-decor sm:block" />
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-bold text-ink">{s.title}</p>
                           <p className="text-xs text-muted">{s.meta}</p>
                         </div>
@@ -147,20 +147,20 @@ export function DayPlan({ trip }: { trip: Trip }) {
                       {it.kind === 'booking' ? (
                         (() => {
                           const Icon = typeIcon[it.type]
-                          return <span className="grid size-10 flex-none place-items-center rounded-xl bg-surface text-primary"><Icon size={18} /></span>
+                          return <span className="hidden size-10 flex-none place-items-center rounded-xl bg-surface text-primary sm:grid"><Icon size={18} /></span>
                         })()
                       ) : (
-                        <span className="grid size-10 flex-none place-items-center rounded-xl bg-tint text-link"><MapPin size={18} /></span>
+                        <span className="hidden size-10 flex-none place-items-center rounded-xl bg-tint text-link sm:grid"><MapPin size={18} /></span>
                       )}
                       <div className="flex-1">
-                        <p className="text-base font-bold text-ink">{it.title}</p>
+                        <p className="text-[15px] font-bold leading-snug text-ink sm:text-base">{it.title}</p>
                         <p className="text-sm text-muted">{it.subtitle}</p>
                       </div>
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${it.kind === 'booking' ? 'bg-primary text-white dark:text-on-primary' : 'border border-line text-muted'}`}>
                         {it.kind === 'booking' ? 'Booked' : 'Planned'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 pl-[52px]">
+                    <div className="flex flex-wrap items-center gap-3 sm:pl-[52px]">
                       {((it.kind === 'planned' && it.audio) || (it.kind === 'booking' && it.type === 'museum')) && placeIdFor(it.title) && (
                         <Link to={`/places/${placeIdFor(it.title)}`} className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-bold text-ink hover:bg-tint">
                           <Headphones size={13} /> Audio guide · 2 min
@@ -179,8 +179,8 @@ export function DayPlan({ trip }: { trip: Trip }) {
           ))}
 
           {!isLastDay && (
-            <div className="grid grid-cols-[72px_32px_1fr] items-center gap-2 py-1.5">
-              <span className="text-right text-[15px] font-bold text-muted">~22:00</span>
+            <div className="grid grid-cols-[44px_20px_minmax(0,1fr)] items-center gap-2 py-1.5 sm:grid-cols-[72px_32px_minmax(0,1fr)]">
+              <span className="text-right text-[13px] font-bold text-muted sm:text-[15px]">22:00</span>
               <span className="size-6 justify-self-center rounded-full border-2 border-muted" />
               {hotelTonight ? (
                 <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
@@ -198,12 +198,12 @@ export function DayPlan({ trip }: { trip: Trip }) {
             </div>
           )}
 
-          <button className="ml-[112px] mt-3 flex items-center justify-center gap-2 rounded-2xl border border-dashed border-link/60 py-3 text-[15px] font-bold text-link hover:bg-tint/50">
+          <button className="ml-[72px] mt-3 flex sm:ml-[112px] items-center justify-center gap-2 rounded-2xl border border-dashed border-link/60 py-3 text-[15px] font-bold text-link hover:bg-tint/50">
             <Plus size={16} /> Add stop
           </button>
         </div>
 
-        <div className="sticky top-[100px]">
+        <div className="lg:sticky lg:top-[100px]">
           {nearbyOpen ? (
             <NearbyPanel category={category} setCategory={setCategory} onClose={() => setNearbyOpen(false)} />
           ) : (
@@ -223,7 +223,7 @@ export function DayPlan({ trip }: { trip: Trip }) {
 
       {askLocation && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-6" onClick={() => setAskLocation(false)}>
-          <div className="flex w-[420px] flex-col items-center gap-4 rounded-2xl bg-surface p-8 text-center shadow-card" onClick={(e) => e.stopPropagation()}>
+          <div className="flex w-full max-w-[420px] flex-col items-center gap-4 rounded-2xl bg-surface p-8 text-center shadow-card" onClick={(e) => e.stopPropagation()}>
             <span className="grid size-14 place-items-center rounded-2xl bg-tint text-primary"><LocateFixed size={26} /></span>
             <h3 className="text-xl font-extrabold text-ink">Find places near you</h3>
             <p className="text-sm text-muted">We use your location only for this search. It is not stored.</p>
@@ -284,7 +284,11 @@ function NearbyPanel({ category, setCategory, onClose }: { category: keyof typeo
         <div key={p.name} className="flex flex-col gap-2 rounded-xl border border-line p-4">
           <div className="flex items-center gap-2">
             <span className="grid size-6 place-items-center rounded-full bg-highlight text-[11px] font-bold text-white">{i + 1}</span>
-            <p className="font-bold text-ink">{p.name}</p>
+            {placeIdFor(p.name) ? (
+              <Link to={`/places/${placeIdFor(p.name)}`} className="font-bold text-ink hover:text-link">{p.name} ›</Link>
+            ) : (
+              <p className="font-bold text-ink">{p.name}</p>
+            )}
           </div>
           <p className="text-xs text-muted">{p.meta}</p>
           <p className="text-[13px] italic text-ink">{p.why}</p>

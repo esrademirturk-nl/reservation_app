@@ -13,9 +13,9 @@ const docName = (b: Booking) =>
 export function Documents({ trip }: { trip: Trip }) {
   const docs = documentsFor(trip.id)
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_300px] items-start gap-6">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-2xl font-extrabold text-ink">{docs.length} documents</h2>
           <span className="flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-bold text-success"><WifiOff size={13} /> All saved for offline use</span>
         </div>
@@ -24,7 +24,7 @@ export function Documents({ trip }: { trip: Trip }) {
             const Icon = typeIcon[b.type]
             const isPdf = b.source === 'PDF' || b.type === 'flight' || b.type === 'train'
             return (
-              <div key={b.id} className="flex items-center gap-4 px-5 py-4">
+              <div key={b.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4">
                 <span className={`grid size-11 flex-none place-items-center rounded-xl ${isPdf ? 'bg-highlight-soft text-highlight' : 'bg-tint text-primary'}`}>
                   {isPdf ? <FileText size={20} /> : <Mail size={20} />}
                 </span>

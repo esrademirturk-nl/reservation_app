@@ -34,14 +34,14 @@ export function PlaceDetail() {
         <span className="text-muted">{place.name}</span>
       </nav>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex flex-col gap-6">
           <section className="relative overflow-hidden rounded-2xl border border-line bg-surface">
-            <Photo src={place.photo} alt={place.name} className="h-[300px]" />
-            <div className="flex items-end justify-between gap-4 p-7">
+            <Photo src={place.photo} alt={place.name} className="h-[200px] sm:h-[300px]" />
+            <div className="flex flex-wrap items-end justify-between gap-4 p-5 sm:p-7">
               <div>
                 <p className="text-sm font-bold text-accent">{place.kind} · {trip.city}</p>
-                <h1 className="text-[40px] font-extrabold leading-tight tracking-tight text-ink">{place.name}</h1>
+                <h1 className="text-[28px] sm:text-[40px] font-extrabold leading-tight tracking-tight text-ink">{place.name}</h1>
                 <p className="text-[15px] text-muted">{place.address}</p>
               </div>
               {ticket && (
@@ -53,8 +53,8 @@ export function PlaceDetail() {
             </div>
           </section>
 
-          <Card className="flex flex-col gap-5 p-7">
-            <div className="flex items-center gap-3">
+          <Card className="flex flex-col gap-5 p-5 sm:p-7">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="grid size-11 place-items-center rounded-xl bg-tint text-primary"><Headphones size={20} /></span>
               <div className="flex-1">
                 <h2 className="text-lg font-extrabold text-ink">Audio guide</h2>
@@ -77,13 +77,13 @@ export function PlaceDetail() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <button aria-label="Back 10 seconds" onClick={() => a && audio.seek(Math.max(0, a.elapsed - 10))} className="grid size-11 place-items-center rounded-full border border-line text-ink hover:bg-tint"><RotateCcw size={18} /></button>
               <button aria-label={a?.playing ? 'Pause' : 'Play'} onClick={audio.toggle} className="grid size-16 place-items-center rounded-full bg-highlight text-white shadow-pop hover:brightness-110">
                 {a?.playing ? <Pause size={26} fill="currentColor" /> : <Play size={26} fill="currentColor" className="ml-1" />}
               </button>
               <button aria-label="Forward 10 seconds" onClick={() => a && audio.seek(Math.min(a.total - 1, a.elapsed + 10))} className="grid size-11 place-items-center rounded-full border border-line text-ink hover:bg-tint"><RotateCw size={18} /></button>
-              <div className="flex flex-1 flex-col gap-1.5">
+              <div className="order-last flex w-full flex-col gap-1.5 sm:order-none sm:w-auto sm:flex-1">
                 <div
                   className="relative h-2 cursor-pointer rounded-full bg-tint"
                   onClick={(e) => {
@@ -106,7 +106,7 @@ export function PlaceDetail() {
             <div className="border-t border-line pt-4">
               <button onClick={() => setShowT(!showT)} className="text-sm font-bold text-link">{showT ? 'Hide transcript' : 'Show transcript'}</button>
               {showT && (
-                <p className="mt-3 text-[17px] leading-relaxed">
+                <p className="mt-3 text-[15px] leading-relaxed sm:text-[17px]">
                   {audio.sentences.map((s, i) => {
                     const on = a && i === a.cur && (a.playing || a.elapsed > 0)
                     return (
@@ -149,7 +149,7 @@ export function PlaceDetail() {
 
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-extrabold text-ink">Nearby</h3>
-            <Link to={`/trips/${trip.id}/plan`} className="text-sm font-bold text-link">See all</Link>
+            <Link to={`/trips/${trip.id}/plan?day=${Number(place.dayIso.slice(8)) - Number(trip.start.slice(8)) + 1}&nearby=1`} className="text-sm font-bold text-link">See all</Link>
           </div>
           {place.nearby.map((n) => {
             const inner = (
@@ -165,7 +165,10 @@ export function PlaceDetail() {
             return n.id ? (
               <Link key={n.name} to={`/places/${n.id}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 hover:shadow-card">{inner}</Link>
             ) : (
-              <div key={n.name} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">{inner}</div>
+              <div key={n.name} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+                {inner}
+                <button aria-label={`Add ${n.name} to plan`} className="grid size-8 place-items-center rounded-lg border border-line text-ink hover:bg-tint"><Plus size={15} /></button>
+              </div>
             )
           })}
           <button className="flex items-center justify-center gap-2 rounded-2xl border border-line bg-surface py-3 font-bold text-ink hover:bg-tint"><Plus size={16} /> Add to plan</button>

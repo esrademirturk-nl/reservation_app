@@ -14,7 +14,7 @@ export function Overview({ trip }: { trip: Trip }) {
   const mapStops = events.filter((e) => bookingPos[e.booking.id] && e.label !== 'Check-out')
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <ol className="relative flex flex-col gap-6 before:absolute before:bottom-4 before:left-[11px] before:top-3 before:w-0.5 before:bg-line">
         {days.map((day, i) => {
           const dayEvents = events.filter((e) => e.at.slice(0, 10) === day)
@@ -33,7 +33,7 @@ export function Overview({ trip }: { trip: Trip }) {
                   <Card key={e.key} className="flex gap-4 p-4 transition-shadow hover:shadow-card">
                     <span className="grid size-11 flex-none place-items-center rounded-xl bg-tint text-primary"><Icon size={20} /></span>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
                         <div>
                           <span className="text-xs font-semibold text-muted">{typeLabel[b.type]}</span>
                           <p className="text-base font-bold text-ink">{b.title}{e.label && ` · ${e.label}`}</p>
@@ -54,7 +54,7 @@ export function Overview({ trip }: { trip: Trip }) {
               })}
 
               {missing.has(day) && (
-                <div className="flex items-center gap-4 rounded-xl border border-dashed border-highlight bg-highlight-soft px-5 py-4 text-on-highlight-soft">
+                <div className="flex flex-wrap items-center gap-4 rounded-xl border border-dashed border-highlight bg-highlight-soft px-5 py-4 text-on-highlight-soft">
                   <TriangleAlert size={20} className="flex-none" />
                   <div className="flex-1">
                     <p className="font-bold">No place to stay for the night of {fmtDay(day)}</p>

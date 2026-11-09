@@ -11,7 +11,7 @@ export function MiniPlayer() {
   const pct = (a.elapsed / a.total) * 100
 
   return (
-    <div className="fixed bottom-6 right-8 z-40 w-[400px] overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+    <div className="fixed inset-x-3 bottom-[76px] z-40 sm:inset-x-auto sm:right-6 sm:w-[400px] lg:bottom-6 lg:right-8 overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
       <div className="flex items-center gap-3 p-3">
         <Photo src={a.place.photo} alt="" className="size-12 flex-none rounded-xl" />
         <Link to={`/places/${a.place.id}`} className="min-w-0 flex-1">
