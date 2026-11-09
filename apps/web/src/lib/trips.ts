@@ -1,10 +1,11 @@
-import { bookings, DEMO_TODAY, extraDeadlines, otherBookings, pastTrips, trips } from '../data/demo'
+import { bookings, extraDeadlines, otherBookings, pastTrips, trips } from '../data/demo'
+import { demoToday, getMode } from './store'
 import type { Booking, Deadline, Gap, Trip } from '../data/types'
 
 const DAY = 86_400_000
 const d = (iso: string) => new Date(iso.slice(0, 10) + 'T00:00:00')
 
-export const today = () => d(DEMO_TODAY)
+export const today = () => d(demoToday())
 
 export const daysBetween = (a: string | Date, b: string | Date) =>
   Math.round(((typeof b === 'string' ? d(b) : b).getTime() - (typeof a === 'string' ? d(a) : a).getTime()) / DAY)
@@ -13,22 +14,22 @@ export const daysUntil = (iso: string) => daysBetween(today(), iso)
 
 export const nights = (t: Trip) => daysBetween(t.start, t.end)
 
-const allBookings = [...bookings, ...otherBookings]
-export const bookingById = (id: string) => allBookings.find((b) => b.id === id)
+const allBookings = () => [...bookings, ...otherBookings]
+export const bookingById = (id: string) => allBookings().find((b) => b.id === id)
 
 export const bookingsFor = (tripId: string) =>
-  allBookings
+  allBookings()
     .filter((b) => b.tripId === tripId && b.status !== 'cancelled')
     .sort((a, b) => a.start.localeCompare(b.start))
 
 export const upcomingTrips = () =>
-  trips.filter((t) => daysUntil(t.end) >= 0).sort((a, b) => a.start.localeCompare(b.start))
+  (getMode() === 'empty' ? [] : trips).filter((t) => daysUntil(t.end) >= 0).sort((a, b) => a.start.localeCompare(b.start))
 
 export const nextTrip = () => upcomingTrips()[0]
 
 export const tripById = (id: string) => [...trips, ...pastTrips].find((t) => t.id === id)
 
-export const completedTrips = () => [...trips, ...pastTrips].filter((t) => daysUntil(t.end) < 0).sort((a, b) => b.start.localeCompare(a.start))
+export const completedTrips = () => (getMode() === 'empty' ? [] : [...trips, ...pastTrips]).filter((t) => daysUntil(t.end) < 0).sort((a, b) => b.start.localeCompare(a.start))
 
 /** ISO dates of the nights of a trip (start .. end-1). */
 const tripNights = (t: Trip) => {
@@ -133,7 +134,7 @@ export const fmtLongToday = () => {
 
 export const relativeAdded = (iso: string) => {
   // demo clock: 30 Oct, 18:05
-  const now = new Date(DEMO_TODAY + 'T18:05')
+  const now = new Date(demoToday() + 'T18:05')
   const diffH = Math.round((now.getTime() - new Date(iso).getTime()) / 3600_000)
   if (diffH < 24) return `${Math.max(1, diffH)}h ago`
   const days = Math.round(diffH / 24)

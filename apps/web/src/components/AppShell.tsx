@@ -3,6 +3,9 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { Bell, ChevronsUpDown, CircleHelp, Globe, LayoutGrid, Lightbulb, LogOut, Map, Moon, Search, Settings, Sparkles, Sun, Ticket } from 'lucide-react'
 import { user } from '../data/demo'
 import { MiniPlayer } from './MiniPlayer'
+import { AddBookingProvider } from './AddBooking'
+import { DemoSwitcher } from './DemoSwitcher'
+import { useStoreVersion } from '../lib/store'
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutGrid, end: true },
@@ -32,8 +35,10 @@ function useTheme() {
 
 export function AppShell() {
   const [dark, setDark] = useTheme()
+  const version = useStoreVersion()
 
   return (
+    <AddBookingProvider>
     <div className="min-h-screen bg-bg lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-surface px-4 py-6 lg:flex">
         <img src={`${import.meta.env.BASE_URL}${dark ? 'waypad-logo-dark.png' : 'waypad-logo-light.png'}`} alt="Waypad" className="mb-8 ml-2 h-7 w-auto self-start" />
@@ -67,6 +72,7 @@ export function AppShell() {
             <kbd className="rounded-md border border-line bg-surface px-1.5 py-0.5 text-[11px] font-semibold">⌘K</kbd>
           </label>
           <div className="flex items-center gap-2">
+            <DemoSwitcher />
             <button
               aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
               onClick={() => setDark(!dark)}
@@ -82,7 +88,7 @@ export function AppShell() {
           </div>
         </header>
         <main className="flex-1 px-4 pb-28 pt-6 sm:px-6 lg:px-10 lg:pb-16 lg:pt-9">
-          <Outlet />
+          <Outlet key={version} />
         </main>
         <MiniPlayer />
       </div>
@@ -106,6 +112,7 @@ export function AppShell() {
         ))}
       </nav>
     </div>
+    </AddBookingProvider>
   )
 }
 

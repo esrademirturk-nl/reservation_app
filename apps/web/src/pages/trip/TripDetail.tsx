@@ -2,6 +2,7 @@ import { Link, NavLink, useParams } from 'react-router-dom'
 import { Plus, Share2, Users } from 'lucide-react'
 import { bookingsFor, daysUntil, fmtWeekday, nights, tripById } from '../../lib/trips'
 import { Photo } from '../../components/ui'
+import { useAddBooking } from '../../components/AddBooking'
 import { Overview } from './Overview'
 import { DayPlan } from './DayPlan'
 import { Bookings } from './Bookings'
@@ -14,6 +15,7 @@ const MONTH = (iso: string) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
 
 export function TripDetail({ tab }: { tab: Tab }) {
   const { tripId = '' } = useParams()
+  const addBooking = useAddBooking()
   const trip = tripById(tripId)
   if (!trip) return <p className="text-muted">Trip not found. <Link to="/trips" className="font-bold text-link">Back to My trips</Link></p>
 
@@ -57,7 +59,7 @@ export function TripDetail({ tab }: { tab: Tab }) {
           </div>
           <div className="flex gap-3">
             <button className="flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-[15px] font-bold text-ink hover:bg-tint"><Share2 size={16} /> Share</button>
-            <button className="flex items-center gap-2 rounded-xl bg-highlight px-5 py-2.5 text-[15px] font-bold text-white hover:brightness-110"><Plus size={16} /> Add booking</button>
+            <button onClick={() => addBooking(trip.id)} className="flex items-center gap-2 rounded-xl bg-highlight px-5 py-2.5 text-[15px] font-bold text-white hover:brightness-110"><Plus size={16} /> Add booking</button>
           </div>
         </div>
         <div className="flex gap-6 overflow-x-auto border-t border-line px-5 sm:gap-8 sm:px-7">

@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, BedDouble, CalendarClock, ChevronRight, Copy, Inbox, Plane, Plus, Sun, TriangleAlert } from 'lucide-react'
+import { ArrowRight, BedDouble, CalendarClock, ChevronRight, Copy, FileText, Inbox, Mail, PencilLine, Plane, Plus, Sparkles, Sun, Ticket, TriangleAlert, UploadCloud, WifiOff, Layers } from 'lucide-react'
 import { bookings, user } from '../data/demo'
 import {
   bookingsFor,
@@ -18,8 +19,13 @@ import {
   sourceLabel,
   stats,
   upcomingTrips,
+  completedTrips,
+  daysBetween,
+  today,
 } from '../lib/trips'
+import { getMode, setMode } from '../lib/store'
 import { TripsMap } from '../components/TripsMap'
+import { useAddBooking } from '../components/AddBooking'
 import { Card, IconTile, Photo, ReadinessBar, typeIcon } from '../components/ui'
 import type { Trip } from '../data/types'
 
@@ -28,6 +34,9 @@ export function Dashboard() {
   const next = nextTrip()
   const later = trips.filter((t) => t.id !== next?.id)
   const firstGap = gaps()[0]
+  const justBack = completedTrips().find((t) => daysBetween(t.end, today()) <= 7)
+
+  if (getMode() === 'empty' || trips.length === 0) return <EmptyDashboard />
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-7">
@@ -37,6 +46,8 @@ export function Dashboard() {
           {fmtLongToday()} · {trips.length} trips coming up
         </p>
       </div>
+
+      {justBack && <WelcomeBack trip={justBack} />}
 
       {next && <Hero trip={next} />}
 
@@ -108,6 +119,7 @@ export function Dashboard() {
 }
 
 function Hero({ trip }: { trip: Trip }) {
+  const addBooking = useAddBooking()
   const bs = bookingsFor(trip.id)
   const ready = readiness(trip)
   const flight = bs.find((b) => b.type === 'flight' && b.start.slice(0, 10) === trip.start)
@@ -181,7 +193,7 @@ function Hero({ trip }: { trip: Trip }) {
           <Link to={`/trips/${trip.id}/plan`} className="rounded-xl bg-highlight px-5 py-3 text-[15px] font-bold text-white hover:brightness-110">
             View day plan
           </Link>
-          <button className="flex items-center gap-2 rounded-xl border border-white/40 px-5 py-3 text-[15px] font-bold text-white hover:bg-white/10">
+          <button onClick={() => addBooking(trip.id)} className="flex items-center gap-2 rounded-xl border border-white/40 px-5 py-3 text-[15px] font-bold text-white hover:bg-white/10">
             <Plus size={16} /> Add booking
           </button>
         </div>
@@ -339,5 +351,131 @@ function TripCard({ trip }: { trip: Trip }) {
         <span className="text-link group-hover:underline">Open planner →</span>
       </div>
     </Link>
+  )
+}
+
+function WelcomeBack({ trip }: { trip: Trip }) {
+  const [hidden, setHidden] = useState(false)
+  if (hidden) return null
+  const museums = bookingsFor(trip.id).filter((b) => b.type === 'museum').length
+  return (
+    <section className="flex flex-col gap-5 rounded-[20px] bg-highlight-soft p-6 sm:flex-row sm:items-center">
+      <div className="relative h-24 w-40 flex-none">
+        {[-8, 4, -2].map((r, i) => (
+          <Photo key={i} src={trip.photo} alt="" className="!absolute h-20 w-28 rounded-lg border-4 border-white shadow-pop" style={{ left: i * 22, top: i * 4, transform: `rotate(${r}deg)` }} />
+        ))}
+      </div>
+      <div className="flex-1 text-on-highlight-soft">
+        <h2 className="text-xl font-extrabold">Welcome back from {trip.city}!</h2>
+        <p className="text-sm font-semibold">{nights(trip)} nights · {museums} museums · 23 km walked</p>
+        <p className="text-sm">Turn your trip into a beautiful travel book.</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <Link to={`/trips/${trip.id}/book`} className="rounded-xl bg-highlight px-5 py-3 text-[15px] font-bold text-white hover:brightness-110">Create travel book</Link>
+        <button onClick={() => setHidden(true)} className="text-sm font-bold text-on-highlight-soft hover:underline">Maybe later</button>
+      </div>
+    </section>
+  )
+}
+
+function EmptyDashboard() {
+  const addBooking = useAddBooking()
+  const [copied, setCopied] = useState(false)
+  const card = 'flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5'
+  return (
+    <div className="mx-auto flex max-w-[1120px] flex-col gap-7">
+      <div>
+        <h1 className="text-[26px] font-extrabold tracking-tight text-ink sm:text-[32px]">Good evening, {user.firstName}</h1>
+        <p className="mt-1 text-[15px] text-muted">{fmtLongToday()} · Welcome to Waypad</p>
+      </div>
+
+      <section className="relative min-h-[260px] overflow-hidden rounded-[20px] bg-hero">
+        <Photo src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Prague_%286365119737%29.jpg/1280px-Prague_%286365119737%29.jpg" alt="" className="!absolute inset-0 sm:left-auto sm:w-[65%]" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, var(--c-hero) 0%, var(--c-hero) 35%, color-mix(in srgb, var(--c-hero) 70%, transparent) 50%, transparent 70%)' }} />
+        <div className="absolute inset-0 bg-hero/75 sm:hidden" />
+        <div className="relative flex max-w-[520px] flex-col gap-3 p-6 sm:p-10">
+          <span className="text-xs font-extrabold tracking-[0.14em] text-accent-decor">WELCOME TO WAYPAD</span>
+          <h2 className="text-[32px] font-extrabold leading-tight tracking-tight text-white sm:text-[44px]">Where to next, {user.firstName}?</h2>
+          <p className="text-[15px] text-white/80">Add your first booking and we’ll build your trip automatically.</p>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-extrabold text-ink">Add your first booking</h2>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className={card}>
+            <div className="flex items-center gap-3">
+              <IconTile className="size-10"><Mail size={18} /></IconTile>
+              <span className="font-bold text-ink">Forward an email</span>
+              <span className="rounded-full bg-accent-decor px-2 py-0.5 text-[11px] font-bold text-white">Recommended</span>
+            </div>
+            <p className="text-sm text-muted">Send booking confirmations to your personal address.</p>
+            <div className="mt-auto flex items-center gap-2 rounded-xl border border-line bg-bg px-3 py-2">
+              <span className="min-w-0 flex-1 truncate text-sm font-bold text-ink">{user.forwardAddress}</span>
+              <button onClick={() => { navigator.clipboard?.writeText(user.forwardAddress); setCopied(true) }} className="flex items-center gap-1 text-xs font-bold text-link"><Copy size={13} /> {copied ? 'Copied' : 'Copy'}</button>
+            </div>
+          </div>
+          <div className={card}>
+            <div className="flex items-center gap-3">
+              <IconTile className="size-10"><FileText size={18} /></IconTile>
+              <span className="font-bold text-ink">Upload a file</span>
+            </div>
+            <button onClick={() => addBooking()} className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line p-4 text-sm hover:border-link hover:bg-tint/40">
+              <UploadCloud size={22} className="text-link" />
+              <span className="font-bold text-ink">Drop a PDF or screenshot</span>
+              <span className="text-xs text-link">or browse files</span>
+            </button>
+          </div>
+          <div className={card}>
+            <div className="flex items-center gap-3">
+              <IconTile className="size-10"><PencilLine size={18} /></IconTile>
+              <span className="font-bold text-ink">Add manually</span>
+            </div>
+            <p className="flex-1 text-sm text-muted">Flight, hotel, train, tickets — for bookings without a document.</p>
+            <button onClick={() => addBooking()} className="rounded-xl bg-highlight py-2.5 text-sm font-bold text-white hover:brightness-110">Add booking</button>
+          </div>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-extrabold text-ink">What you’ll get</h2>
+        <Card className="grid grid-cols-1 items-center gap-6 p-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="relative overflow-hidden rounded-2xl border border-line opacity-60 blur-[0.5px]">
+            <span className="absolute left-3 top-3 z-10 rounded-md bg-primary px-2 py-0.5 text-[11px] font-bold text-white">SAMPLE</span>
+            <div className="h-28 bg-gradient-to-br from-[#c9a77c] to-[#7a5a3c]" />
+            <div className="flex flex-col gap-2 p-4">
+              <p className="flex justify-between font-extrabold text-ink">Barcelona, Spain <span className="text-xs font-bold text-link">5 bookings</span></p>
+              <p className="text-xs text-muted">3–7 Jun · 4 nights</p>
+              <div className="flex flex-wrap gap-1.5 text-[11px] font-bold text-primary">
+                <span className="rounded-full bg-tint px-2 py-0.5">Flight 3 Jun 09:15</span>
+                <span className="rounded-full bg-tint px-2 py-0.5">Hotel check-in 14:00</span>
+                <span className="rounded-full bg-tint px-2 py-0.5">Sagrada Família</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            {[
+              [Layers, 'Trips grouped automatically', 'Bookings sorted into trips by date and city'],
+              [TriangleAlert, 'Alerts for missing nights and deadlines', 'Know before a cancellation window closes'],
+              [WifiOff, 'All tickets offline in Wallet', 'Boarding passes and QR codes, no signal needed'],
+            ].map(([Icon, h, d]) => {
+              const I = Icon as typeof Ticket
+              return (
+                <div key={h as string} className="flex gap-3">
+                  <IconTile className="size-10"><I size={18} /></IconTile>
+                  <span>
+                    <span className="block font-bold text-ink">{h as string}</span>
+                    <span className="block text-sm text-muted">{d as string}</span>
+                  </span>
+                </div>
+              )
+            })}
+            <button onClick={() => setMode('normal')} className="flex items-center justify-center gap-2 self-start rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink hover:bg-tint">
+              <Sparkles size={15} className="text-accent-decor" /> Explore with a sample trip
+            </button>
+          </div>
+        </Card>
+      </section>
+    </div>
   )
 }

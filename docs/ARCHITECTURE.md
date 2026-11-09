@@ -54,6 +54,7 @@ pages/
 - **URL state:** tabs, selected day, open drawer and ticket live in the URL (`?tab=`, `?day=`, `?open=`, `?ticket=`, `?nearby=1`), so every state can be linked to and the browser back button works.
 - **Trips map:** the land outline comes from the dashboard design. A linear projection fitted to the design's Amsterdam, Prague and Rome positions places any city; the view frames all trips automatically.
 - **Audio guide:** narration is split into sentences and spoken one by one, so the transcript can highlight the current sentence and seek by sentence. A simulated clock drives the progress bar. The state lives in a context above the router, so the mini player keeps playing across pages.
+- **Demo store (`lib/store.ts`):** imported bookings are added to the shared bookings list, so readiness, gaps and totals update everywhere at once; the demo moment changes "today" or hides trips. Imported bookings are kept in `sessionStorage` for the session.
 - **Photos:** `Photo` shows a warm gradient until the image loads or if it fails.
 - **Travel book:** pages are built with HTML/CSS and sized in `em`, so the same component renders the large preview and the small thumbnails.
 
@@ -73,7 +74,7 @@ Locally `npm run dev` serves the app at `/`.
 
 ## Roadmap
 
-1. **Remaining designed screens:** empty dashboard, after-trip "Welcome back" dashboard, import flow (Import → Review → Saved), dark-mode polish.
+1. **Remaining designed screens:** bulk import page for several files; dark-mode polish.
 2. **Backend (NestJS + Prisma, TypeScript):** entities from [DATA-MODEL.md](DATA-MODEL.md#moving-to-a-backend), auth, booking import from forwarded emails and PDFs (parsing with field confidence for "Please check"), computed gaps, readiness and deadlines.
 3. **AI services:** suggestions from reviews within the user's budget (max 3 at a time), audio narration in the user's language, photo-to-day matching for the travel book.
 4. **Mobile app (React Native):** Wallet offline, location-triggered Nearby and audio guide, push notifications for deadlines.

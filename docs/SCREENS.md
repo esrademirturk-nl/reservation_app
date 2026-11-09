@@ -27,7 +27,27 @@ The **account menu** shows name and email, Language, Settings, Help, Upgrade pla
 | 1w, 1t | Wallet | `/wallet?tab=today\|upcoming\|used` | Ticket-style passes, travel-day view, full-screen QR |
 | 6a, 2g | Suggestions | `/suggestions?trip=` | Fix your trip, Fill your free time, Don't miss |
 
-Frames 1c/1d (empty dashboard), 1r (after-trip "Welcome back") and 2a, 2m–2r (import flow) are designed but not built yet; see [ARCHITECTURE.md → Roadmap](ARCHITECTURE.md#roadmap).
+More screens built for the demo story:
+
+| Design frame | Screen | Route | Notes |
+|---|---|---|---|
+| 1c / 1d | Dashboard · new user (empty state) | `/` in demo moment "New user" | Where to next hero, three ways to add a booking, sample trip preview |
+| 1r | Dashboard · after the trip | `/` in demo moment "Back from Rome" | "Welcome back from Rome!" card → Create travel book; hero moves to Prague |
+| 2m–2r | Add booking (Import → Review → Save) | modal from any **Add booking** button | Upload with reading progress, document preview with highlighted fields, confidence per field, "Please check" that must be resolved, suggested trip, saved summary |
+
+Frame 2a (bulk import page for several files at once) is not built; the modal handles one booking at a time.
+
+## Demo moments
+
+The dashed **Demo** button in the top bar switches the story without reloading:
+
+| Moment | "Today" | What changes |
+|---|---|---|
+| Before the trip | Fri 30 Oct 2026 | Default; Rome in 13 days, night of 15 Nov missing |
+| New user | Fri 30 Oct 2026 | No trips: empty dashboard and empty My trips. "Explore with a sample trip" returns to the default |
+| Back from Rome | Tue 17 Nov 2026 | Rome is completed, Welcome back card, next trip Prague |
+
+Bookings added through the import flow stay for the browser session (also after a reload). Choosing **New user** clears them.
 
 ## Screen details
 

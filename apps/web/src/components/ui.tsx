@@ -36,9 +36,9 @@ export function ReadinessBar({ done, total, label = 'Trip readiness' }: { done: 
 }
 
 /** Image with a branded gradient fallback (Wikimedia can be slow or blocked). */
-export function Photo({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
+export function Photo({ src, alt, className = '', style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-br from-[#c9a77c] to-[#7a5a3c] ${className}`}>
+    <div style={style} className={`relative overflow-hidden bg-gradient-to-br from-[#c9a77c] to-[#7a5a3c] ${className}`}>
       <img src={src} alt={alt} loading="lazy" className="absolute inset-0 size-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
     </div>
   )
