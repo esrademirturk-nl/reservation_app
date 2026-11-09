@@ -61,6 +61,12 @@ pages/
 
 Tailwind breakpoints: `sm` 640 px, `md` 768 px, `lg` 1024 px. Below `lg` the sidebar becomes a top bar plus a bottom tab bar and two-column layouts stack. Details in [SCREENS.md](SCREENS.md#responsive-rules).
 
+## API (`apps/api`)
+
+Milestone 1 is in place: NestJS app with the `/api/v1` prefix, environment validation (zod), Drizzle ORM schema for users, cities, trips, trip members, inbound emails, source documents, reservations, day plans and plan items, SQL migrations in `apps/api/drizzle`, a demo seed that mirrors the web app's data, `GET /api/v1/health`, unit and end-to-end tests against PostgreSQL, and a CI workflow (`.github/workflows/api.yml`).
+
+**ORM change:** the Technical Design Document (v2.0) planned Prisma. The API uses **Drizzle ORM** instead: schema in TypeScript, migrations as reviewable SQL files, and no engine binary to download, which keeps builds reproducible in restricted environments. See [apps/api/README.md](../apps/api/README.md) for decisions and scripts.
+
 ## Deployment
 
 `.github/workflows/deploy-web.yml` runs on every push to `main` that changes `apps/web/`:

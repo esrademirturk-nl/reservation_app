@@ -22,18 +22,23 @@
 ```
 reservation_app/
 ├── apps/
-│   └── web/                 React web app (this is what the live demo runs)
+│   ├── web/                 React web app (this is what the live demo runs)
+│   └── api/                 NestJS + Drizzle + PostgreSQL API (in progress)
 ├── docs/
 │   ├── PRODUCT.md           Product overview, features and user journey
 │   ├── SCREENS.md           Every screen, its route, design frame and states
 │   ├── DATA-MODEL.md        Types, computed rules and demo data decisions
 │   ├── ARCHITECTURE.md      Stack, folder structure, theming, audio, deployment
 │   └── DEMO-SCRIPT.md       5–7 minute walkthrough for presenting the demo
+├── docker-compose.yml       Local PostgreSQL and Redis for the API
 └── .github/workflows/
-    └── deploy-web.yml       Builds apps/web and publishes it to GitHub Pages
+    ├── deploy-web.yml       Builds apps/web and publishes it to GitHub Pages
+    └── api.yml              Lint, type-check, tests and build for apps/api
 ```
 
 ## Run it locally
+
+Web app:
 
 ```bash
 cd apps/web
@@ -44,6 +49,8 @@ npm run build      # production build in apps/web/dist
 
 Requires Node.js 20.19 or newer (the deploy workflow uses Node 22).
 
+API: see [apps/api/README.md](apps/api/README.md) (`docker compose up -d`, then migrate, seed and start).
+
 ## Deployment
 
 Every push to `main` that touches `apps/web/` triggers the **Deploy web app to GitHub Pages** workflow. It builds the app with the `/reservation_app/` base path and publishes it. Progress is visible in the **Actions** tab; the site updates 1–2 minutes after a merge.
@@ -52,4 +59,4 @@ Every push to `main` that touches `apps/web/` triggers the **Deploy web app to G
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router 7 · lucide-react · qrcode.react · Web Speech API (audio guide)
 
-Planned: NestJS backend with Prisma, React Native mobile app. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#roadmap).
+API (in progress): NestJS · Drizzle ORM · PostgreSQL · Jest. Planned: BullMQ + Redis for background jobs, React Native mobile app. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#roadmap).
