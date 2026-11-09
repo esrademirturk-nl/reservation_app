@@ -149,7 +149,7 @@ export function PlaceDetail() {
 
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-extrabold text-ink">Nearby</h3>
-            <Link to={`/trips/${trip.id}/plan`} className="text-sm font-bold text-link">See all</Link>
+            <Link to={`/trips/${trip.id}/plan?day=${Number(place.dayIso.slice(8)) - Number(trip.start.slice(8)) + 1}&nearby=1`} className="text-sm font-bold text-link">See all</Link>
           </div>
           {place.nearby.map((n) => {
             const inner = (
@@ -165,7 +165,10 @@ export function PlaceDetail() {
             return n.id ? (
               <Link key={n.name} to={`/places/${n.id}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 hover:shadow-card">{inner}</Link>
             ) : (
-              <div key={n.name} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">{inner}</div>
+              <div key={n.name} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+                {inner}
+                <button aria-label={`Add ${n.name} to plan`} className="grid size-8 place-items-center rounded-lg border border-line text-ink hover:bg-tint"><Plus size={15} /></button>
+              </div>
             )
           })}
           <button className="flex items-center justify-center gap-2 rounded-2xl border border-line bg-surface py-3 font-bold text-ink hover:bg-tint"><Plus size={16} /> Add to plan</button>

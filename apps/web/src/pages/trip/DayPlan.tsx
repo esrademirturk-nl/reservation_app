@@ -36,9 +36,9 @@ export function DayPlan({ trip }: { trip: Trip }) {
   const idx = Math.min(Number(params.get('day') ?? 2) - 1, days.length - 1)
   const day = days[Math.max(0, idx)]
   const missing = new Set(missingNights(trip))
-  const [nearbyOpen, setNearbyOpen] = useState(false)
+  const [nearbyOpen, setNearbyOpen] = useState(params.get('nearby') === '1')
   const [askLocation, setAskLocation] = useState(false)
-  const [shared, setShared] = useState(false)
+  const [shared, setShared] = useState(params.get('nearby') === '1')
   const [category, setCategory] = useState<keyof typeof nearby>('Food')
 
   const items: Item[] = [
@@ -86,7 +86,7 @@ export function DayPlan({ trip }: { trip: Trip }) {
         {days.map((dd, i) => (
           <button
             key={dd}
-            onClick={() => setParams({ day: String(i + 1) })}
+            onClick={() => setParams(nearbyOpen ? { day: String(i + 1), nearby: '1' } : { day: String(i + 1) })}
             className={`relative rounded-xl border px-4 py-2 text-center leading-tight transition-colors ${dd === day ? 'border-primary bg-primary text-white dark:text-on-primary' : 'border-line bg-surface text-ink hover:bg-tint'}`}
           >
             <span className="block text-sm font-bold">{fmtWeekday(dd)} {Number(dd.slice(8))}</span>
@@ -284,7 +284,11 @@ function NearbyPanel({ category, setCategory, onClose }: { category: keyof typeo
         <div key={p.name} className="flex flex-col gap-2 rounded-xl border border-line p-4">
           <div className="flex items-center gap-2">
             <span className="grid size-6 place-items-center rounded-full bg-highlight text-[11px] font-bold text-white">{i + 1}</span>
-            <p className="font-bold text-ink">{p.name}</p>
+            {placeIdFor(p.name) ? (
+              <Link to={`/places/${placeIdFor(p.name)}`} className="font-bold text-ink hover:text-link">{p.name} ›</Link>
+            ) : (
+              <p className="font-bold text-ink">{p.name}</p>
+            )}
           </div>
           <p className="text-xs text-muted">{p.meta}</p>
           <p className="text-[13px] italic text-ink">{p.why}</p>
