@@ -91,4 +91,4 @@ The Claude Design screens used different data for the same Rome trip. The demo u
 
 ## Moving to a backend
 
-Planned entities for NestJS + Prisma: `User`, `Trip`, `Booking`, `Document` (original email/PDF, linked to a booking), `PlanItem` (planned stop or free time), `Place`, `Narration` (place × language), `Suggestion`, `TravelBook` and `Order`. Gaps, readiness and deadlines stay computed on the server, never stored.
+Planned entities for NestJS + Drizzle ORM (the first ten tables exist in `apps/api/src/db/schema.ts`): `User`, `Trip`, `Booking`, `Document` (original email/PDF, linked to a booking), `PlanItem` (planned stop or free time), `Place`, `Narration` (place × language), `Suggestion`, `TravelBook` and `Order`. Gaps, readiness and deadlines stay computed on the server, never stored.
