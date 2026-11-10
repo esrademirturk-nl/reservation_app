@@ -68,6 +68,10 @@ Milestone 1 is in place: NestJS app with the `/api/v1` prefix, environment valid
 
 **ORM change:** the Technical Design Document (v2.0) planned Prisma. The API uses **Drizzle ORM** instead: schema in TypeScript, migrations as reviewable SQL files, and no engine binary to download, which keeps builds reproducible in restricted environments. See [apps/api/README.md](../apps/api/README.md) for decisions and scripts.
 
+## Data & personalisation
+
+How customer data is collected (with consent), modelled (customer 360, features) and used for personalisation — operational PostgreSQL, event outbox, lakehouse on Azure, GDPR erasure — is designed in [DATA-ARCHITECTURE.md](DATA-ARCHITECTURE.md).
+
 ## Deployment
 
 `.github/workflows/deploy-web.yml` runs on every push to `main` that changes `apps/web/`:
