@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsIn,
+  IsUUID,
   IsInt,
   IsISO8601,
   IsLatitude,
@@ -68,4 +69,27 @@ export class ListTripsQuery {
 export class TodayQuery {
   @IsOptional() @Matches(DATE) today?: string;
   @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(20) limit?: number;
+}
+
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+export class AddPlanItemDto {
+  @Matches(DATE) @IsISO8601({ strict: true }) date!: string;
+  /** optional when placeId is given (the place's name is used) */
+  @IsOptional() @IsString() @Length(1, 200) title?: string;
+  @IsOptional() @IsString() @Length(1, 200) subtitle?: string;
+  @IsOptional()
+  @Matches(TIME, { message: 'startTime must look like 17:30' })
+  startTime?: string;
+  @IsOptional()
+  @Matches(TIME, { message: 'endTime must look like 18:00' })
+  endTime?: string;
+  @IsOptional() @IsUUID() placeId?: string;
+}
+
+export class UpdatePlanItemDto {
+  @IsOptional() @IsString() @Length(1, 200) title?: string;
+  @IsOptional() @IsString() @Length(1, 200) subtitle?: string;
+  @IsOptional() @Matches(TIME) startTime?: string;
+  @IsOptional() @Matches(TIME) endTime?: string;
 }

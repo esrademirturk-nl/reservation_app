@@ -8,8 +8,8 @@ REST API for Waypad, built with **NestJS**, **Drizzle ORM** and **PostgreSQL**.
 | 2. Accounts — register, login, refresh tokens, profile, forwarding address | ✅ |
 | 3. Trips & reservations — CRUD, readiness, gaps, deadlines, dashboard | ✅ |
 | 4. Booking import — upload, forwarded email, background queue, AI or rule-based reading | ✅ |
-| 5. City guide & suggestions | next |
-| 6. Deployment | planned |
+| 5. City guide & suggestions — Near me, audio guide, day plan, suggestions | ✅ |
+| 6. Deployment | next |
 
 See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md#roadmap) for the full plan.
 
@@ -57,6 +57,11 @@ All routes are under `/api/v1`. Everything needs `Authorization: Bearer <accessT
 | POST | `/reservations/:id/cancel` | |
 | POST | `/imports` | multipart `file` (PDF, PNG/JPG/WebP, .eml, .txt/.html, max 10 MB) → 202 + import status |
 | GET | `/imports` · `/imports/:id` | status `processing` → `parsed` / `failed`, with the reservations it found |
+| GET | `/cities/:cityId/places?lat=&lon=&category=` | Near me: places nearest first, with walking minutes (only cities with the live guide) |
+| GET | `/places/:id?lang=en\|tr\|nl` | place + audio guide in that language (falls back to English) + 3 places nearby |
+| GET / POST | `/trips/:id/plan` | the user's own stops; `{ date, placeId?, title?, startTime?, endTime? }` |
+| PATCH / DELETE | `/trips/:id/plan/:itemId` | |
+| GET | `/trips/:id/suggestions?today=` | sections: Fix your trip · Fill your free time · Don't miss |
 | POST | `/inbound/email` | public webhook for forwarded emails, signed with `X-Waypad-Signature: sha256=<hmac>` |
 
 `today` is optional everywhere: it defaults to the real date. The web demo sends `2026-10-30`, the day its story is set.
@@ -102,6 +107,7 @@ src/
   users/             UsersService, GET/PATCH /me, forwarding address
   trips/             trips CRUD; planning.ts = readiness, gaps, deadlines, timeline (pure, unit-tested)
   reservations/      reservations CRUD, confirm/cancel, GET /dashboard
+  guide/             places, audio guide (+ AI translation cache), suggest.ts = free time & suggestion rules (pure)
   storage/           file storage (local disk now, Azure Blob later — same 3 methods)
   imports/
     extraction/      ExtractionProvider: claude.ts (Claude API) and rule-based.ts (offline)
@@ -134,6 +140,8 @@ test/                end-to-end tests
 - **Imported bookings are suggestions.** They are saved as `pending` and matched to a trip by date; the user confirms them ("Looks right"). The same booking forwarded twice (same reference, type and start) is not added again.
 - **Email safety.** The webhook checks an HMAC signature over the raw body, accepts mail only from the user's own address (or a verified sender), never reveals whether an alias exists, and deletes raw emails after 30 days.
 - **File safety.** The file type is taken from the file's bytes, not its name; files go to storage under random names; storage keys cannot escape the storage folder.
+- **Suggestions are rules, not ads.** Free time = gaps of 2 h+ between 09:00 and 21:00 (after landing, before the flight home). Places must fit the window and the user's budget; food comes first around lunch. Gaps get a search link (Booking.com / Google Flights) — Waypad does not invent hotel prices or availability.
+- **Audio guides: curated first, AI second.** Texts written for the app are stored per language. If a language is missing and an API key is set, Claude translates the English text once and the result is cached (`source: "ai"`), so the app can label it.
 - **Tests use a real database.** e2e tests migrate and seed a separate `waypad_test` database, the same way CI does.
 
 ## Environment variables

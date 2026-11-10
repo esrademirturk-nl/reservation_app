@@ -5,6 +5,9 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '../schema';
 import data from './demo-data.json';
+import guide from './rome-guide.json';
+
+type PlaceCategory = (typeof schema.placeCategoryEnum.enumValues)[number];
 
 /**
  * Loads the same demo story the web app shows (Esra, Rome 12–16 Nov 2026, …).
@@ -132,6 +135,62 @@ export async function seed(url = process.env.DATABASE_URL) {
           createdAt: new Date(b.addedAt),
         })),
       );
+
+      // Rome guide: places + audio-guide texts (shared by everyone, upserted)
+      const romeCity = cityIds.get('rome')!;
+      const placeIds = new Map<string, string>();
+      for (const p of guide.places) {
+        const { narrations, ...place } = p;
+        const values = {
+          ...place,
+          cityId: romeCity,
+          category: place.category as PlaceCategory,
+        };
+        const [row] = await tx
+          .insert(schema.places)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [schema.places.cityId, schema.places.slug],
+            set: values,
+          })
+          .returning();
+        placeIds.set(p.slug, row.id);
+        await tx
+          .delete(schema.placeNarrations)
+          .where(eq(schema.placeNarrations.placeId, row.id));
+        if (narrations.length)
+          await tx.insert(schema.placeNarrations).values(
+            narrations.map((n) => ({
+              placeId: row.id,
+              language: n.language as 'en' | 'tr' | 'nl',
+              text: n.text,
+              seconds: n.seconds,
+              source: 'curated' as const,
+            })),
+          );
+      }
+
+      // Rome day plan: the stops Esra planned herself (bookings are added to the plan automatically)
+      const romeTrip = tripIds.get('rome')!;
+      for (const date of [...new Set(guide.plan.map((x) => x.date))]) {
+        const [day] = await tx
+          .insert(schema.dayPlans)
+          .values({ tripId: romeTrip, date })
+          .returning();
+        await tx.insert(schema.planItems).values(
+          guide.plan
+            .filter((x) => x.date === date)
+            .map((x, i) => ({
+              dayPlanId: day.id,
+              kind: 'planned' as const,
+              placeId: x.place ? placeIds.get(x.place) : null,
+              title: x.title,
+              subtitle: x.subtitle,
+              startTime: x.startTime,
+              position: i,
+            })),
+        );
+      }
     });
 
     // counts for the demo account only (other users may exist, e.g. in tests)

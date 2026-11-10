@@ -9,7 +9,15 @@ import {
 import { and, asc, eq, ilike, inArray, isNull } from 'drizzle-orm';
 import { addDays, todayIso } from '../common/dates';
 import { DB, type Database } from '../db/db.module';
-import { cities, reservations, tripMembers, trips } from '../db/schema';
+import {
+  cities,
+  dayPlans,
+  planItems,
+  reservations,
+  tripMembers,
+  trips,
+} from '../db/schema';
+import { planItemColumns, toPlanItem } from './plan';
 import type { CreateTripDto, UpdateTripDto } from './dto';
 import { deadlines, gaps, nights, readiness, timeline } from './planning';
 import { planTrip, toReservation, toTrip } from './serialize';
@@ -126,22 +134,49 @@ export class TripsService {
     );
   }
 
+  /** Stops the user planned (not bookings), ordered by day and time. */
+  async planItemsOf(tripId: string) {
+    const rows = await this.db
+      .select(planItemColumns)
+      .from(planItems)
+      .innerJoin(dayPlans, eq(dayPlans.id, planItems.dayPlanId))
+      .where(eq(dayPlans.tripId, tripId))
+      .orderBy(
+        asc(dayPlans.date),
+        asc(planItems.startTime),
+        asc(planItems.position),
+      );
+    return rows.map(toPlanItem);
+  }
+
   async detail(tripId: string, userId: string, today = todayIso()) {
     const row = await this.access(tripId, userId);
     const rs = await this.reservationsOf([tripId]);
+    const planned = await this.planItemsOf(tripId);
     const plan = planTrip(row.trip, row.city);
-    const events = timeline(rs);
+    // the day plan: bookings (hotels twice) and planned stops, in time order; stops without a time go last
+    const events = [
+      ...timeline(rs).map((e) => ({
+        at: e.at,
+        kind: 'booking' as const,
+        label: e.label,
+        title: e.reservation.title,
+        reservationId: e.reservation.id,
+      })),
+      ...planned.map((p) => ({
+        at: `${p.date}T${p.startTime ?? '23:59'}`,
+        kind: 'planned' as const,
+        label: '',
+        title: p.title,
+        planItemId: p.id,
+        placeId: p.placeId,
+      })),
+    ].sort((x, y) => x.at.localeCompare(y.at));
     const days = Array.from({ length: nights(plan) + 1 }, (_, i) =>
       addDays(plan.startDate, i),
     ).map((date) => ({
       date,
-      events: events
-        .filter((e) => e.at.startsWith(date))
-        .map((e) => ({
-          at: e.at,
-          label: e.label,
-          reservationId: e.reservation.id,
-        })),
+      events: events.filter((e) => e.at.startsWith(date)),
     }));
     return {
       ...this.summary(row, rs),
@@ -149,6 +184,7 @@ export class TripsService {
       deadlines: deadlines(rs, today),
       days,
       reservations: rs,
+      planned,
     };
   }
 
