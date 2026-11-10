@@ -7,8 +7,8 @@ REST API for Waypad, built with **NestJS**, **Drizzle ORM** and **PostgreSQL**.
 | 1. Foundation — config, schema, migrations, seed, health, CI | ✅ |
 | 2. Accounts — register, login, refresh tokens, profile, forwarding address | ✅ |
 | 3. Trips & reservations — CRUD, readiness, gaps, deadlines, dashboard | ✅ |
-| 4. Booking import (PDF, email, AI extraction) | next |
-| 5. City guide & suggestions | planned |
+| 4. Booking import — upload, forwarded email, background queue, AI or rule-based reading | ✅ |
+| 5. City guide & suggestions | next |
 | 6. Deployment | planned |
 
 See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md#roadmap) for the full plan.
@@ -55,6 +55,9 @@ All routes are under `/api/v1`. Everything needs `Authorization: Bearer <accessT
 | GET / PATCH / DELETE | `/reservations/:id` | `tripId: null` moves it to Unsorted |
 | POST | `/reservations/:id/confirm` | "Looks right" after an import — clears the "Please check" flags |
 | POST | `/reservations/:id/cancel` | |
+| POST | `/imports` | multipart `file` (PDF, PNG/JPG/WebP, .eml, .txt/.html, max 10 MB) → 202 + import status |
+| GET | `/imports` · `/imports/:id` | status `processing` → `parsed` / `failed`, with the reservations it found |
+| POST | `/inbound/email` | public webhook for forwarded emails, signed with `X-Waypad-Signature: sha256=<hmac>` |
 
 `today` is optional everywhere: it defaults to the real date. The web demo sends `2026-10-30`, the day its story is set.
 
@@ -99,6 +102,13 @@ src/
   users/             UsersService, GET/PATCH /me, forwarding address
   trips/             trips CRUD; planning.ts = readiness, gaps, deadlines, timeline (pure, unit-tested)
   reservations/      reservations CRUD, confirm/cancel, GET /dashboard
+  storage/           file storage (local disk now, Azure Blob later — same 3 methods)
+  imports/
+    extraction/      ExtractionProvider: claude.ts (Claude API) and rule-based.ts (offline)
+    text.ts          file type sniffing; text from PDF, HTML and .eml
+    imports.service  store → read → save as "pending" reservations, duplicates skipped
+    import-queue.ts  BullMQ queue + worker (inline without Redis), daily purge job
+    inbound.*        forwarded-email webhook (HMAC check, sender check)
   health/            GET /api/v1/health (checks the database)
 drizzle/             generated SQL migrations (committed)
 test/                end-to-end tests
@@ -119,6 +129,11 @@ test/                end-to-end tests
 - **Planning rules are pure functions** (`src/trips/planning.ts`): no database, easy to unit-test, the same rules as the web demo. Services only load rows and call them.
 - **Access through membership.** Every trip query joins `trip_members`, so sharing (editor/viewer) works without changes. Someone else's trip or booking answers **404**, never 403, so ids cannot be probed.
 - **Deleting a trip keeps the bookings**: they move to Unsorted instead of being lost.
+- **Import in the background.** Reading a PDF and calling an AI model takes seconds, so uploads return `202` at once and a BullMQ worker does the work (3 attempts with back-off; only the last failure is shown to the user). Without `REDIS_URL` the same code runs inside the request, which keeps local development and tests simple.
+- **Two readers, one interface.** With `ANTHROPIC_API_KEY` bookings are read by Claude using a forced tool call with a JSON schema; the answer is validated again with zod, and invalid bookings are dropped. Without a key, a rule-based reader handles common confirmations (labels like "Booking reference", "Check-in", "Departure"). Both mark unsure fields, which become "Please check" in the app.
+- **Imported bookings are suggestions.** They are saved as `pending` and matched to a trip by date; the user confirms them ("Looks right"). The same booking forwarded twice (same reference, type and start) is not added again.
+- **Email safety.** The webhook checks an HMAC signature over the raw body, accepts mail only from the user's own address (or a verified sender), never reveals whether an alias exists, and deletes raw emails after 30 days.
+- **File safety.** The file type is taken from the file's bytes, not its name; files go to storage under random names; storage keys cannot escape the storage folder.
 - **Tests use a real database.** e2e tests migrate and seed a separate `waypad_test` database, the same way CI does.
 
 ## Environment variables
@@ -133,4 +148,10 @@ test/                end-to-end tests
 | `JWT_ACCESS_TTL` | `900` | Access token lifetime in seconds |
 | `REFRESH_TTL_DAYS` | `30` | Refresh token lifetime in days |
 | `FORWARD_DOMAIN` | `in.waypad.app` | Domain of the personal forwarding addresses |
+| `REDIS_URL` | — | e.g. `redis://localhost:6379`; empty = imports are read inside the request |
+| `STORAGE_DIR` | `./storage` | Where uploads and raw emails are stored |
+| `UPLOAD_MAX_MB` | `10` | |
+| `ANTHROPIC_API_KEY` | — | Empty = offline rule-based reader |
+| `ANTHROPIC_MODEL` | `claude-haiku-5-5` | |
+| `INBOUND_SECRET` | — | ≥ 16 chars; signs the email webhook. Empty = webhook off |
 | `TEST_DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/waypad_test` | Used by the e2e tests |
