@@ -15,6 +15,20 @@
       "when": 1794255384875,
       "tag": "0001_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794256149563,
+      "tag": "0002_import_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794256506883,
+      "tag": "0003_guide",
+      "breakpoints": true
     }
   ]
 }

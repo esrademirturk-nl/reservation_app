@@ -64,13 +64,37 @@ Tailwind breakpoints: `sm` 640 px, `md` 768 px, `lg` 1024 px. Below `lg` the sid
 
 ## API (`apps/api`)
 
-Milestone 1 is in place: NestJS app with the `/api/v1` prefix, environment validation (zod), Drizzle ORM schema for users, cities, trips, trip members, inbound emails, source documents, reservations, day plans and plan items, SQL migrations in `apps/api/drizzle`, a demo seed that mirrors the web app's data, `GET /api/v1/health`, unit and end-to-end tests against PostgreSQL, and a CI workflow (`.github/workflows/api.yml`).
+NestJS 11 + Drizzle ORM + PostgreSQL 16, with Redis (BullMQ) for background jobs. All routes are under `/api/v1`; the full endpoint list, design decisions and environment variables are in [apps/api/README.md](../apps/api/README.md).
+
+| Module | What it does |
+|---|---|
+| `auth`, `users` | Register, login, rotating refresh tokens (reuse detection), profile, personal forwarding address |
+| `trips` | Trips through membership (owner / editor / viewer), readiness, gaps, deadlines, day-by-day timeline, the user's planned stops |
+| `reservations` | Bookings: manual add with automatic trip matching, Unsorted, review (confirm), cancel; `GET /dashboard` |
+| `imports` | Upload or forward a booking → storage → queue → text (PDF/HTML/.eml) → reader (Claude, or offline rules) → pending reservations with "Please check" flags |
+| `guide` | Near me, place detail with audio guide per language (AI translation cached), suggestions (fix gaps, fill free time, don't miss) |
+| `health` | `GET /health` for containers and uptime checks |
+
+```
+          ┌──────────── API container (NestJS) ────────────┐
+web/app ─►│ REST /api/v1 ─► services ─► Drizzle ─► PostgreSQL │
+          │        │                                       │
+mail  ───►│ webhook└─► BullMQ queue ◄─► worker ─► Claude API │
+          │                 │ Redis        │               │
+          │                 ▼              ▼               │
+          │            storage (disk / Azure Blob)          │
+          └────────────────────────────────────────────────┘
+```
+
+Product rules that both apps need (readiness, gaps, deadlines, free time) are pure functions (`src/trips/planning.ts`, `src/guide/suggest.ts`) with unit tests, mirroring `apps/web/src/lib/trips.ts`.
 
 **ORM change:** the Technical Design Document (v2.0) planned Prisma. The API uses **Drizzle ORM** instead: schema in TypeScript, migrations as reviewable SQL files, and no engine binary to download, which keeps builds reproducible in restricted environments. See [apps/api/README.md](../apps/api/README.md) for decisions and scripts.
 
 ## Deployment
 
-`.github/workflows/deploy-web.yml` runs on every push to `main` that changes `apps/web/`:
+**API:** a Docker image (`apps/api/Dockerfile`) is built and smoke-tested on every pull request and published to GitHub Container Registry from `main` (`.github/workflows/api-image.yml`). The step-by-step Azure guide is in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+**Web:** `.github/workflows/deploy-web.yml` runs on every push to `main` that changes `apps/web/`:
 
 1. `npm ci` and `npm run build` with `GITHUB_PAGES=true`, which sets the Vite `base` and router `basename` to `/reservation_app/`.
 2. Copies `index.html` to `404.html`, so deep links like `/trips/rome/plan` open the app.
@@ -80,8 +104,9 @@ Locally `npm run dev` serves the app at `/`.
 
 ## Roadmap
 
-1. **Remaining designed screens:** bulk import page for several files; dark-mode polish.
-2. **Backend (NestJS + Prisma, TypeScript):** entities from [DATA-MODEL.md](DATA-MODEL.md#moving-to-a-backend), auth, booking import from forwarded emails and PDFs (parsing with field confidence for "Please check"), computed gaps, readiness and deadlines.
-3. **AI services:** suggestions from reviews within the user's budget (max 3 at a time), audio narration in the user's language, photo-to-day matching for the travel book.
-4. **Mobile app (React Native):** Wallet offline, location-triggered Nearby and audio guide, push notifications for deadlines.
-5. **Security review, user testing, store submission.**
+1. ✅ **Designed screens:** empty dashboard, after-trip dashboard, import flow (Import → Review → Saved). Still open: bulk import page for several files; dark-mode polish.
+2. ✅ **Backend (NestJS + Drizzle):** accounts, trips and reservations, readiness/gaps/deadlines, booking import (upload, forwarded email, AI or rule-based reading, queue), city guide, day plan and suggestions, Docker image.
+3. **Connect the web app to the API:** login screen, replace the demo store with API calls (keep the demo mode for the portfolio link), import review screen on `/imports/:id`.
+4. **More AI:** suggestions from reviews within the user's budget, audio narration generated for new places, photo-to-day matching for the travel book.
+5. **Mobile app (React Native):** Wallet offline, location-triggered Nearby and audio guide, push notifications for deadlines.
+6. **Security review, user testing, store submission.**

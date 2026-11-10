@@ -48,7 +48,7 @@ The demo is set on **Friday 30 October 2026**, 13 days before a Rome trip.
 Open the same link on a phone: bottom tab bar, Wallet passes and the QR fit the screen.
 
 ## 9. How it's built (30 s)
-React + TypeScript + Tailwind, one data model where gaps, readiness and deadlines are computed, deployed automatically with GitHub Actions. Next: NestJS backend with Prisma, email import, and a React Native app.
+React + TypeScript + Tailwind, one data model where gaps, readiness and deadlines are computed, deployed automatically with GitHub Actions. Behind it: a NestJS + PostgreSQL API with accounts, trips, booking import from PDFs and forwarded emails (read by Claude), city guide and suggestions, tested in CI and packaged as a Docker image. Next: connect the web app to the API, then a React Native app.
 
 ## Likely questions
 - **How do bookings get in?** A personal forwarding address, PDF upload or manual entry. Parsing runs on the backend (next step); the demo uses prepared data.
