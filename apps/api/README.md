@@ -2,7 +2,16 @@
 
 REST API for Waypad, built with **NestJS**, **Drizzle ORM** and **PostgreSQL**.
 
-Milestone 1 (this version) is the foundation: configuration, database schema and migrations, demo seed data, a health check, tests and CI. Accounts, trips and booking import follow in the next milestones (see [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md#roadmap)).
+| Milestone | Status |
+|---|---|
+| 1. Foundation — config, schema, migrations, seed, health, CI | ✅ |
+| 2. Accounts — register, login, refresh tokens, profile, forwarding address | ✅ |
+| 3. Trips & reservations | next |
+| 4. Booking import (PDF, email, AI extraction) | planned |
+| 5. City guide & suggestions | planned |
+| 6. Deployment | planned |
+
+See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md#roadmap) for the full plan.
 
 ## Run it locally
 
@@ -19,6 +28,31 @@ npm run db:migrate     # create the tables
 npm run db:seed        # load the demo story (Esra, Rome 12–16 Nov 2026, …)
 npm run start:dev      # http://localhost:3000/api/v1/health
 ```
+
+Demo login after seeding: `esra@demo.waypad.app` / `waypad-demo1`.
+
+## Endpoints
+
+All routes are under `/api/v1`. Everything needs `Authorization: Bearer <accessToken>` unless marked public.
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/health` | public — database check |
+| POST | `/auth/register` | public — `{ email, password, fullName, language? }` → user + tokens |
+| POST | `/auth/login` | public — `{ email, password }` → user + tokens (5 tries/min) |
+| POST | `/auth/refresh` | public — `{ refreshToken }` → new access token + new refresh token |
+| POST | `/auth/logout` | public — `{ refreshToken }` → 204 |
+| GET | `/me` | profile, language, budget level, forwarding address |
+| PATCH | `/me` | `{ fullName?, language?, budgetLevel?, homeCity? }` |
+| GET | `/me/forward-address` | `{ forwardAddress: "esra@in.waypad.app" }` |
+
+Errors always have the same shape:
+
+```json
+{ "code": "EMAIL_TAKEN", "message": "An account with this email already exists — try signing in", "details": null }
+```
+
+For validation errors `code` is `BAD_REQUEST`, `message` is `Validation failed` and `details` lists the problems.
 
 ## Scripts
 
@@ -46,6 +80,9 @@ src/
     db.module.ts     global Drizzle + pg Pool provider (token: DB)
     migrate.ts       applies migrations
     seed/            demo data and seed script
+  common/            error filter (one error shape for every response)
+  auth/              register, login, refresh, logout; JWT guard; @Public() and @CurrentUser()
+  users/             UsersService, GET/PATCH /me, forwarding address
   health/            GET /api/v1/health (checks the database)
 drizzle/             generated SQL migrations (committed)
 test/                end-to-end tests
@@ -59,6 +96,10 @@ test/                end-to-end tests
 - **Local times for bookings.** `start_at` and `end_at` are stored without time zone, exactly as printed on the ticket in the destination's local time.
 - **Soft delete** (`deleted_at`) on user-owned tables; deleting a user cascades to all their data (GDPR).
 - **Fail fast on bad config.** The app does not start if an environment variable is missing or invalid, and says which one.
+- **Short access tokens + rotating refresh tokens.** Access tokens are JWTs valid for 15 minutes. Refresh tokens are random strings; only their SHA-256 hash is stored. Each refresh replaces the token. If an old token is used again (a sign it was stolen), every token in that login "family" is revoked and the user must sign in again.
+- **Passwords with Argon2id** (`@node-rs/argon2`, prebuilt, no compiler needed). A failed login for an unknown email still runs a hash check, so the response time does not reveal which emails have accounts, and the error message is the same.
+- **Secure by default.** A global guard requires a valid access token on every route; public routes opt out with `@Public()`. Rate limiting is global (100/min) and stricter on login and register.
+- **Forwarding alias from the name.** "Esra Demirtürk" gets `esra@in.waypad.app`; if that is taken, `esra2`, `esra3` …
 - **Tests use a real database.** e2e tests migrate and seed a separate `waypad_test` database, the same way CI does.
 
 ## Environment variables
@@ -69,4 +110,8 @@ test/                end-to-end tests
 | `PORT` | `3000` | |
 | `NODE_ENV` | `development` | `development`, `test` or `production` |
 | `CORS_ORIGINS` | `http://localhost:5173,https://esrademirturk-nl.github.io` | Comma-separated browser origins |
+| `JWT_SECRET` | — (required) | At least 32 characters. Generate one with `openssl rand -base64 48` |
+| `JWT_ACCESS_TTL` | `900` | Access token lifetime in seconds |
+| `REFRESH_TTL_DAYS` | `30` | Refresh token lifetime in days |
+| `FORWARD_DOMAIN` | `in.waypad.app` | Domain of the personal forwarding addresses |
 | `TEST_DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/waypad_test` | Used by the e2e tests |

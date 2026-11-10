@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { hashPassword } from '../../auth/password';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
@@ -17,7 +18,7 @@ type DemoBooking = (typeof data.bookings)[number] & {
   checkInOpens?: string;
 };
 
-const DEMO_EMAIL = 'esra@demo.waypad.app';
+export const DEMO_EMAIL = 'esra@demo.waypad.app';
 
 const sourceMap = {
   'Booking.com': 'booking_com',
@@ -27,6 +28,9 @@ const sourceMap = {
 } as const;
 
 /** Live guide is switched on for the launch cities only. */
+/** Demo login (public on purpose — it only unlocks the seeded demo account). */
+export const DEMO_PASSWORD = 'waypad-demo1';
+
 const LIVE_GUIDE = new Set(['Rome', 'Paris', 'Amsterdam']);
 
 export async function seed(url = process.env.DATABASE_URL) {
@@ -53,6 +57,7 @@ export async function seed(url = process.env.DATABASE_URL) {
         .insert(schema.users)
         .values({
           email: DEMO_EMAIL,
+          passwordHash: await hashPassword(DEMO_PASSWORD),
           fullName: data.user.fullName,
           forwardAlias: data.user.forwardAddress.split('@')[0],
           homeCity: data.user.home,
@@ -129,12 +134,16 @@ export async function seed(url = process.env.DATABASE_URL) {
       );
     });
 
-    const counts = {
-      users: (await db.select().from(schema.users)).length,
-      trips: (await db.select().from(schema.trips)).length,
-      reservations: (await db.select().from(schema.reservations)).length,
+    // counts for the demo account only (other users may exist, e.g. in tests)
+    const demo = await db.query.users.findFirst({
+      where: (u, { eq }) => eq(u.email, DEMO_EMAIL),
+      with: { memberships: true, reservations: true },
+    });
+    return {
+      users: demo ? 1 : 0,
+      trips: demo?.memberships.length ?? 0,
+      reservations: demo?.reservations.length ?? 0,
     };
-    return counts;
   } finally {
     await pool.end();
   }
