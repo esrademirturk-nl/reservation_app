@@ -6,8 +6,8 @@ REST API for Waypad, built with **NestJS**, **Drizzle ORM** and **PostgreSQL**.
 |---|---|
 | 1. Foundation — config, schema, migrations, seed, health, CI | ✅ |
 | 2. Accounts — register, login, refresh tokens, profile, forwarding address | ✅ |
-| 3. Trips & reservations | next |
-| 4. Booking import (PDF, email, AI extraction) | planned |
+| 3. Trips & reservations — CRUD, readiness, gaps, deadlines, dashboard | ✅ |
+| 4. Booking import (PDF, email, AI extraction) | next |
 | 5. City guide & suggestions | planned |
 | 6. Deployment | planned |
 
@@ -45,6 +45,20 @@ All routes are under `/api/v1`. Everything needs `Authorization: Bearer <accessT
 | GET | `/me` | profile, language, budget level, forwarding address |
 | PATCH | `/me` | `{ fullName?, language?, budgetLevel?, homeCity? }` |
 | GET | `/me/forward-address` | `{ forwardAddress: "esra@in.waypad.app" }` |
+| GET | `/dashboard?today=` | next trip, upcoming trips, stats, gaps, deadlines, recently added, needs review |
+| GET | `/trips?when=upcoming\|past\|all&today=` | each trip with nights, readiness, booking count, total |
+| POST | `/trips` | `{ city, countryCode, startDate, endDate, travelers? }` (+ `country, lat, lon` for a new city) |
+| GET | `/trips/:id` | trip + readiness, gaps, deadlines, day-by-day timeline, reservations |
+| PATCH / DELETE | `/trips/:id` | edit (owner/editor) / soft delete (owner) — its bookings go to Unsorted |
+| GET | `/reservations?tripId=\|unsorted=true\|status=pending` | |
+| POST | `/reservations` | manual booking; without `tripId` it joins the trip whose dates contain it |
+| GET / PATCH / DELETE | `/reservations/:id` | `tripId: null` moves it to Unsorted |
+| POST | `/reservations/:id/confirm` | "Looks right" after an import — clears the "Please check" flags |
+| POST | `/reservations/:id/cancel` | |
+
+`today` is optional everywhere: it defaults to the real date. The web demo sends `2026-10-30`, the day its story is set.
+
+Dates: trip days are `YYYY-MM-DD`; booking times are **local times at the destination** without a zone, `YYYY-MM-DDTHH:mm`, exactly as printed on the ticket. Prices are integer cents plus a currency code.
 
 Errors always have the same shape:
 
@@ -83,6 +97,8 @@ src/
   common/            error filter (one error shape for every response)
   auth/              register, login, refresh, logout; JWT guard; @Public() and @CurrentUser()
   users/             UsersService, GET/PATCH /me, forwarding address
+  trips/             trips CRUD; planning.ts = readiness, gaps, deadlines, timeline (pure, unit-tested)
+  reservations/      reservations CRUD, confirm/cancel, GET /dashboard
   health/            GET /api/v1/health (checks the database)
 drizzle/             generated SQL migrations (committed)
 test/                end-to-end tests
@@ -100,6 +116,9 @@ test/                end-to-end tests
 - **Passwords with Argon2id** (`@node-rs/argon2`, prebuilt, no compiler needed). A failed login for an unknown email still runs a hash check, so the response time does not reveal which emails have accounts, and the error message is the same.
 - **Secure by default.** A global guard requires a valid access token on every route; public routes opt out with `@Public()`. Rate limiting is global (100/min) and stricter on login and register.
 - **Forwarding alias from the name.** "Esra Demirtürk" gets `esra@in.waypad.app`; if that is taken, `esra2`, `esra3` …
+- **Planning rules are pure functions** (`src/trips/planning.ts`): no database, easy to unit-test, the same rules as the web demo. Services only load rows and call them.
+- **Access through membership.** Every trip query joins `trip_members`, so sharing (editor/viewer) works without changes. Someone else's trip or booking answers **404**, never 403, so ids cannot be probed.
+- **Deleting a trip keeps the bookings**: they move to Unsorted instead of being lost.
 - **Tests use a real database.** e2e tests migrate and seed a separate `waypad_test` database, the same way CI does.
 
 ## Environment variables
