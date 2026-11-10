@@ -19,10 +19,31 @@ services:
       retries: 10
 
   redis:
-    # used from milestone 4 for background jobs (BullMQ)
+    # background jobs (BullMQ): booking import, daily purge
     image: redis:7-alpine
     ports:
       - '6379:6379'
 
+  # The API itself, built from apps/api/Dockerfile. Only started with:
+  #   docker compose --profile full up --build
+  api:
+    profiles: ['full']
+    build: ./apps/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/waypad
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: local-docker-secret-that-is-long-enough-1234567890
+      SEED_DEMO: 'true'
+    ports:
+      - '3000:3000'
+    volumes:
+      - storage:/data/storage
+
 volumes:
   pgdata:
+  storage:

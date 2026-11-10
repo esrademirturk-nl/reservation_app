@@ -9,7 +9,7 @@ REST API for Waypad, built with **NestJS**, **Drizzle ORM** and **PostgreSQL**.
 | 3. Trips & reservations — CRUD, readiness, gaps, deadlines, dashboard | ✅ |
 | 4. Booking import — upload, forwarded email, background queue, AI or rule-based reading | ✅ |
 | 5. City guide & suggestions — Near me, audio guide, day plan, suggestions | ✅ |
-| 6. Deployment | next |
+| 6. Deployment — Docker image, CI smoke test, GHCR, Azure guide | ✅ |
 
 See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md#roadmap) for the full plan.
 
@@ -76,6 +76,15 @@ Errors always have the same shape:
 
 For validation errors `code` is `BAD_REQUEST`, `message` is `Validation failed` and `details` lists the problems.
 
+## Run it in Docker
+
+```bash
+# from the repository root: PostgreSQL + Redis + the API, demo data loaded
+docker compose --profile full up --build
+```
+
+The image runs migrations on start (`RUN_MIGRATIONS=false` to skip) and can load the demo (`SEED_DEMO=true`). Production setup: [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md).
+
 ## Scripts
 
 | Script | What it does |
@@ -88,6 +97,8 @@ For validation errors `code` is `BAD_REQUEST`, `message` is `Validation failed` 
 | `npm test` | Unit tests |
 | `npm run test:e2e` | End-to-end tests against the `waypad_test` database |
 | `npm run lint` / `npm run typecheck` | Code checks (also run in CI) |
+| `npm run build` then `npm run start:prod` | Compiled build, as in the Docker image |
+| `npm run db:migrate:prod` / `npm run db:seed:prod` | Migrations / demo seed from the compiled build (no dev tools needed) |
 
 ## Structure
 
@@ -157,6 +168,9 @@ test/                end-to-end tests
 | `REFRESH_TTL_DAYS` | `30` | Refresh token lifetime in days |
 | `FORWARD_DOMAIN` | `in.waypad.app` | Domain of the personal forwarding addresses |
 | `REDIS_URL` | — | e.g. `redis://localhost:6379`; empty = imports are read inside the request |
+| `IMPORT_WORKER` | `true` | `false` = this instance only adds jobs; run the worker in another container |
+| `RUN_MIGRATIONS` | `true` | Docker only: apply migrations on start |
+| `SEED_DEMO` | `false` | Docker only: reset and load the demo account on start |
 | `STORAGE_DIR` | `./storage` | Where uploads and raw emails are stored |
 | `UPLOAD_MAX_MB` | `10` | |
 | `ANTHROPIC_API_KEY` | — | Empty = offline rule-based reader |
