@@ -90,6 +90,10 @@ Product rules that both apps need (readiness, gaps, deadlines, free time) are pu
 
 **ORM change:** the Technical Design Document (v2.0) planned Prisma. The API uses **Drizzle ORM** instead: schema in TypeScript, migrations as reviewable SQL files, and no engine binary to download, which keeps builds reproducible in restricted environments. See [apps/api/README.md](../apps/api/README.md) for decisions and scripts.
 
+## Data & personalisation
+
+How customer data is collected (with consent), modelled (customer 360, features) and used for personalisation — operational PostgreSQL, event outbox, lakehouse on Azure, GDPR erasure — is designed in [DATA-ARCHITECTURE.md](DATA-ARCHITECTURE.md).
+
 ## Deployment
 
 **API:** a Docker image (`apps/api/Dockerfile`) is built and smoke-tested on every pull request and published to GitHub Container Registry from `main` (`.github/workflows/api-image.yml`). The step-by-step Azure guide is in [DEPLOYMENT.md](DEPLOYMENT.md).
