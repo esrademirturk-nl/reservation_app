@@ -2,3 +2,10 @@ node_modules/
 dist/
 .env
 .DS_Store
+
+# data pipeline (generated)
+data/sample/lake/
+data/dbt/target/
+data/dbt/logs/
+data/dbt/dbt_packages/
+data/dbt/.user.yml

@@ -1,0 +1,1 @@
+select * from {{ latest_snapshot('preferences', {'customer_key': 'varchar', 'pace': 'varchar', 'interests': 'varchar[]', 'travel_party': 'varchar', 'home_airport': 'varchar', 'preferred_providers': 'varchar[]', 'seat': 'varchar', 'updated_at': 'varchar'}) }}

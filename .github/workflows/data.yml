@@ -1,0 +1,33 @@
+name: Data pipeline
+
+# Builds and tests the dbt models on synthetic bronze data on every change to the pipeline.
+on:
+  pull_request:
+    paths: ['data/**', '.github/workflows/data.yml']
+  push:
+    branches: [main]
+    paths: ['data/**', '.github/workflows/data.yml']
+
+jobs:
+  dbt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install dbt-duckdb
+      - name: Generate synthetic bronze data
+        run: python data/sample/generate_lake.py
+      - name: dbt build (models + tests)
+        working-directory: data/dbt
+        run: dbt build --profiles-dir .
+      - name: Show the KPIs
+        working-directory: data/dbt
+        run: |
+          python - <<'PY'
+          import duckdb
+          c = duckdb.connect('target/waypad.duckdb', read_only=True)
+          for t in ['kpi_signup_funnel', 'kpi_import_accuracy', 'kpi_suggestion_acceptance']:
+              print(f'\n== gold.{t}'); print(c.sql(f'select * from gold.{t}'))
+          PY
