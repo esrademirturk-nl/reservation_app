@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: Outbox events as shipped to bronze (lake/bronze/events/ingest_date=…). May contain duplicates from retries.
+  - name: stg_customers
+    description: Latest snapshot of customers (pseudonymous).
+  - name: stg_consents
+    description: Full consent history (append-only).
+  - name: stg_preferences
+    description: Stated preferences of customers who allowed product analytics.
+  - name: stg_trips
+    description: Trips of customers who allowed product analytics.
+  - name: stg_reservations
+    description: Bookings of customers who allowed product analytics (no titles, references or addresses).
+  - name: stg_suggestion_feedback
+    description: Reactions to suggestions.
+  - name: stg_places
+    description: Reference data — places of guide cities.

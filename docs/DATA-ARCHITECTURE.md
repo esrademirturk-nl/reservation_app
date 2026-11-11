@@ -329,3 +329,7 @@ sequenceDiagram
 - Import accuracy: % of imported fields not corrected by the user, per reader and booking type
 - Suggestion acceptance rate per section and segment
 - 30/90-day retention, trips per active user per year
+
+## 11. Implementation status
+
+**Phase 1 — dbt (done):** `data/dbt` builds silver and gold from the bronze files (customer 360, personalisation features, funnel, import accuracy, suggestion KPIs) with 48 tests, on DuckDB locally and in CI. See [data/README.md](../data/README.md). The API part (tables, consents, tracking, lake export) is in its own pull request.

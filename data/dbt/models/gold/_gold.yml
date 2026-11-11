@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: customer_360
+    description: One row per customer_key — profile, consents, preferences, trips, bookings, spend and engagement.
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+      - name: favourite_city
+        tests: [no_email_addresses]
+  - name: customer_features_daily
+    description: >
+      Personalisation features (matches the user_features table in PostgreSQL). Only customers whose
+      current consent allows personalisation; withdrawn consent removes the row at the next run.
+    columns:
+      - name: customer_key
+        tests:
+          - unique
+          - not_null
+          - relationships: { to: ref('customer_360'), field: customer_key }
+      - name: segment
+        tests:
+          - not_null
+          - accepted_values:
+              values: [family_traveller, budget_traveller, city_breaker, culture_lover, food_and_local_life, explorer]
+  - name: kpi_signup_funnel
+    description: Sign-up → onboarding → first trip → first import within 7 days, by sign-up week.
+    columns:
+      - name: signup_week
+        tests: [unique, not_null]
+  - name: kpi_import_accuracy
+    description: Imports, flagged fields, corrections per import and time to confirm, by booking type and channel.
+  - name: kpi_suggestion_acceptance
+    description: Suggestions shown / accepted / dismissed / not for me, by section and position.

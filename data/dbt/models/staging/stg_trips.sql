@@ -1,0 +1,1 @@
+select * from {{ latest_snapshot('trips', {'trip_id': 'varchar', 'customer_key': 'varchar', 'city': 'varchar', 'country_code': 'varchar', 'start_date': 'date', 'end_date': 'date', 'travelers': 'integer', 'created_at': 'varchar', 'is_deleted': 'boolean'}) }}

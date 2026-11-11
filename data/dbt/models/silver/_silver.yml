@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: fct_events
+    description: One row per event, deduplicated on event_id, with common properties as columns.
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships: { to: ref('dim_customer'), field: customer_key }
+      - name: event_name
+        tests:
+          - not_null
+          - accepted_values:
+              values: [account_created, onboarding_completed, trip_created, booking_added_manually, booking_imported,
+                       booking_field_corrected, booking_confirmed, suggestion_feedback, screen_viewed, gap_shown,
+                       audio_guide_played, search_performed, reminder_opened]
+  - name: dim_consent_current
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+  - name: dim_customer
+    description: Pseudonymous customer dimension with current consents and stated preferences.
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+      - name: budget_level
+        tests: [{ accepted_values: { values: [1, 2, 3], quote: false } }]
+  - name: fct_trips
+    columns:
+      - name: trip_id
+        tests: [unique, not_null]
+      - name: nights
+        tests: [{ dbt_utils_free_non_negative: {} }]
+  - name: fct_reservations
+    columns:
+      - name: reservation_id
+        tests: [unique, not_null]
+      - name: status
+        tests: [{ accepted_values: { values: [pending, confirmed, cancelled] } }]
+      - name: price_cents
+        tests: [{ dbt_utils_free_non_negative: {} }]
+  - name: fct_suggestion_feedback
+    columns:
+      - name: action
+        tests: [{ accepted_values: { values: [shown, accepted, dismissed, not_for_me] } }]

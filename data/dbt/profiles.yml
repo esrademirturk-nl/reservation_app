@@ -1,0 +1,9 @@
+# Local and CI: DuckDB reads the bronze JSON Lines files directly.
+# Production: the same models run on Databricks (dbt-databricks) over ADLS Gen2.
+waypad:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('WAYPAD_DUCKDB', 'target/waypad.duckdb') }}"
+      threads: 4
