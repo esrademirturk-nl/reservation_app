@@ -10,10 +10,12 @@
  */
 import { relations, sql } from 'drizzle-orm';
 import {
+  bigserial,
   boolean,
   date,
   index,
   integer,
+  numeric,
   jsonb,
   pgEnum,
   pgTable,
@@ -373,6 +375,169 @@ export const planItems = pgTable('plan_items', {
 });
 
 /* ---------- relations (for relational queries) ---------- */
+/* ---------- customer data (docs/DATA-ARCHITECTURE.md) ---------- */
+
+export const consentPurposeEnum = pgEnum('consent_purpose', [
+  'product_analytics',
+  'personalisation',
+  'marketing',
+  'ai_processing',
+]);
+export const paceEnum = pgEnum('travel_pace', [
+  'relaxed',
+  'balanced',
+  'packed',
+]);
+export const travelPartyEnum = pgEnum('travel_party', [
+  'solo',
+  'couple',
+  'friends',
+  'family',
+]);
+export const seatEnum = pgEnum('seat_preference', ['window', 'aisle', 'none']);
+export const feedbackActionEnum = pgEnum('suggestion_feedback_action', [
+  'shown',
+  'accepted',
+  'dismissed',
+  'not_for_me',
+]);
+
+/**
+ * Pseudonym used everywhere outside this database (events, lakehouse).
+ * Deleting the user deletes this row, so analytics history can no longer be tied to them.
+ */
+export const customerKeys = pgTable('customer_keys', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  customerKey: uuid('customer_key').notNull().unique().defaultRandom(),
+  createdAt: createdAt(),
+});
+
+/** Append-only consent history: the latest row per purpose is the current choice. */
+export const userConsents = pgTable(
+  'user_consents',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    purpose: consentPurposeEnum('purpose').notNull(),
+    granted: boolean('granted').notNull(),
+    /** version of the privacy text the user saw, e.g. "privacy-2026-11" */
+    textVersion: varchar('text_version', { length: 32 }).notNull(),
+    /** where the choice was made: onboarding, settings, banner */
+    source: varchar('source', { length: 32 }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index('user_consents_user_purpose_idx').on(
+      t.userId,
+      t.purpose,
+      t.recordedAt,
+    ),
+  ],
+);
+
+/** What the traveller told us about themselves (budget level stays on users). */
+export const userPreferences = pgTable('user_preferences', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  pace: paceEnum('pace'),
+  interests: text('interests')
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  travelParty: travelPartyEnum('travel_party'),
+  /** IATA code, e.g. AMS */
+  homeAirport: varchar('home_airport', { length: 3 }),
+  preferredProviders: text('preferred_providers')
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  seat: seatEnum('seat'),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Transactional outbox: events are written in the same transaction as the change they describe,
+ * then shipped to the lakehouse (bronze) and marked shipped.
+ */
+export const eventOutbox = pgTable(
+  'event_outbox',
+  {
+    eventId: uuid('event_id').primaryKey().defaultRandom(),
+    customerKey: uuid('customer_key').notNull(),
+    eventName: varchar('event_name', { length: 64 }).notNull(),
+    schemaVersion: smallint('schema_version').notNull().default(1),
+    occurredAt: timestamp('occurred_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    properties: jsonb('properties')
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    /** app, app_version, platform, locale, session_id, consent_version */
+    context: jsonb('context')
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    shippedAt: timestamp('shipped_at', { withTimezone: true }),
+  },
+  (t) => [
+    index('event_outbox_unshipped_idx')
+      .on(t.occurredAt)
+      .where(sql`${t.shippedAt} is null`),
+  ],
+);
+
+/** Reactions to suggestions — labels for ranking, and "not for me" is respected right away. */
+export const suggestionFeedback = pgTable(
+  'suggestion_feedback',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tripId: uuid('trip_id').references(() => trips.id, { onDelete: 'cascade' }),
+    /** place id or gap key, e.g. "gap-stay-2026-11-15" */
+    itemRef: varchar('item_ref', { length: 100 }).notNull(),
+    action: feedbackActionEnum('action').notNull(),
+    at: timestamp('at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('suggestion_feedback_user_idx').on(t.userId, t.action)],
+);
+
+/** Personalisation features, written only by the reverse-ETL job (safe to drop and rebuild). */
+export const userFeatures = pgTable('user_features', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  tripsPerYear: numeric('trips_per_year', {
+    precision: 6,
+    scale: 2,
+    mode: 'number',
+  }),
+  avgTripNights: numeric('avg_trip_nights', {
+    precision: 6,
+    scale: 2,
+    mode: 'number',
+  }),
+  avgSpendPerNightCents: integer('avg_spend_per_night_cents'),
+  medianLeadTimeDays: smallint('median_lead_time_days'),
+  topCategories: text('top_categories')
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  segment: varchar('segment', { length: 40 }),
+  computedAt: timestamp('computed_at', { withTimezone: true }).notNull(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   memberships: many(tripMembers),
   reservations: many(reservations),

@@ -7,7 +7,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { and, asc, eq, ilike, inArray, isNull } from 'drizzle-orm';
-import { addDays, todayIso } from '../common/dates';
+import { addDays, daysBetween, todayIso } from '../common/dates';
+import { EventsService } from '../customer/events.service';
 import { DB, type Database } from '../db/db.module';
 import {
   cities,
@@ -36,7 +37,10 @@ export const slugify = (s: string) =>
 
 @Injectable()
 export class TripsService {
-  constructor(@Inject(DB) private readonly db: Database) {}
+  constructor(
+    @Inject(DB) private readonly db: Database,
+    private readonly events: EventsService,
+  ) {}
 
   /** All trips the user is a member of, with their city. */
   private memberTrips(userId: string) {
@@ -249,6 +253,13 @@ export class TripsService {
       await tx
         .insert(tripMembers)
         .values({ tripId: trip.id, userId, role: 'owner' });
+      await this.events.track(tx, userId, 'trip_created', {
+        city: city.name,
+        country_code: city.countryCode,
+        nights: daysBetween(dto.startDate, dto.endDate),
+        travelers: trip.travelers,
+        days_until_start: daysBetween(todayIso(), dto.startDate),
+      });
       return trip.id;
     });
     return this.detail(tripId, userId);

@@ -1,6 +1,7 @@
 import {
   freeWindows,
   gapAction,
+  personalise,
   placesForWindow,
   type CandidatePlace,
 } from './suggest';
@@ -80,5 +81,43 @@ describe('suggestion rules', () => {
     expect(a.url).toBe(
       'https://www.booking.com/searchresults.html?ss=Rome&checkin=2026-11-15&checkout=2026-11-16',
     );
+  });
+
+  it('turns stated preferences into picking rules', () => {
+    expect(personalise(null)).toEqual({
+      boost: {},
+      picksPerWindow: 3,
+      minWindowMinutes: 120,
+    });
+    const relaxedFoodie = personalise({
+      pace: 'relaxed',
+      interests: ['food', 'history'],
+    });
+    expect(relaxedFoodie).toMatchObject({
+      picksPerWindow: 2,
+      minWindowMinutes: 150,
+      boost: { food: -15, coffee: -15, sight: -15, museum: -15 },
+    });
+
+    const afternoon = {
+      date: '2026-11-13',
+      from: '15:00',
+      to: '18:00',
+      minutes: 180,
+    };
+    const options = [
+      place({ id: 'museum', category: 'museum', rank: 10 }),
+      place({ id: 'market', category: 'food', rank: 20 }),
+    ];
+    expect(placesForWindow(afternoon, options, 2, 1)[0].id).toBe('museum');
+    expect(
+      placesForWindow(
+        afternoon,
+        options,
+        2,
+        1,
+        personalise({ pace: null, interests: ['food'] }).boost,
+      )[0].id,
+    ).toBe('market');
   });
 });

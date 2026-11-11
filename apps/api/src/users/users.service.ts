@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { and, eq, isNull, like } from 'drizzle-orm';
-import { DB, type Database } from '../db/db.module';
+import { DB, type Database, type Executor } from '../db/db.module';
 import { users } from '../db/schema';
 import type { Env } from '../config/env';
 
@@ -81,12 +81,15 @@ export class UsersService {
     for (let i = 2; ; i++) if (!taken.has(`${base}${i}`)) return `${base}${i}`;
   }
 
-  async create(input: {
-    email: string;
-    passwordHash: string;
-    fullName: string;
-    language?: 'en' | 'tr' | 'nl';
-  }) {
+  async create(
+    input: {
+      email: string;
+      passwordHash: string;
+      fullName: string;
+      language?: 'en' | 'tr' | 'nl';
+    },
+    exec: Executor = this.db,
+  ) {
     if (await this.findByEmail(input.email))
       throw new ConflictException({
         code: 'EMAIL_TAKEN',
@@ -95,7 +98,7 @@ export class UsersService {
     const forwardAlias = await this.uniqueAlias(
       aliasBase(input.fullName, input.email),
     );
-    const [u] = await this.db
+    const [u] = await exec
       .insert(users)
       .values({
         email: input.email,

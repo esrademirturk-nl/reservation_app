@@ -14,6 +14,7 @@ import { Storage } from '../storage/storage';
 import { matchTrip } from '../trips/planning';
 import { toReservation } from '../trips/serialize';
 import { TripsService } from '../trips/trips.service';
+import { EventsService } from '../customer/events.service';
 import {
   EXTRACTION_PROVIDER,
   type ExtractedBooking,
@@ -41,6 +42,7 @@ export class ImportsService {
     @Inject(EXTRACTION_PROVIDER) private readonly extractor: ExtractionProvider,
     private readonly storage: Storage,
     private readonly trips: TripsService,
+    private readonly events: EventsService,
   ) {}
 
   /** Stores a file and creates a document waiting to be read. */
@@ -162,25 +164,35 @@ export class ImportsService {
       const confidence = Object.fromEntries(
         Object.entries(b.confidence).filter(([, v]) => v !== 'high'),
       );
-      await this.db.insert(reservations).values({
-        userId: doc.userId,
-        tripId: matchTrip(trips, b.startAt)?.id ?? null,
-        sourceDocumentId: doc.id,
-        type: b.type,
-        title: b.title,
-        provider: b.provider,
-        source,
-        startAt,
-        endAt: b.endAt ? toPgDateTime(b.endAt) : null,
-        location: b.location,
-        ref: b.ref || '—',
-        priceCents: b.priceCents ?? 0,
-        currency: b.currency ?? 'EUR',
-        guests: b.guests ?? 1,
-        freeCancellationUntil: b.freeCancellationUntil,
-        checkInOpens: b.checkInOpens,
-        status: 'pending',
-        fieldConfidence: Object.keys(confidence).length ? confidence : null,
+      const tripId = matchTrip(trips, b.startAt)?.id ?? null;
+      await this.db.transaction(async (tx) => {
+        await tx.insert(reservations).values({
+          userId: doc.userId,
+          tripId,
+          sourceDocumentId: doc.id,
+          type: b.type,
+          title: b.title,
+          provider: b.provider,
+          source,
+          startAt,
+          endAt: b.endAt ? toPgDateTime(b.endAt) : null,
+          location: b.location,
+          ref: b.ref || '—',
+          priceCents: b.priceCents ?? 0,
+          currency: b.currency ?? 'EUR',
+          guests: b.guests ?? 1,
+          freeCancellationUntil: b.freeCancellationUntil,
+          checkInOpens: b.checkInOpens,
+          status: 'pending',
+          fieldConfidence: Object.keys(confidence).length ? confidence : null,
+        });
+        await this.events.track(tx, doc.userId, 'booking_imported', {
+          type: b.type,
+          source,
+          reader: this.extractor.name,
+          fields_flagged: Object.keys(confidence).length,
+          matched_trip: !!tripId,
+        });
       });
     }
   }

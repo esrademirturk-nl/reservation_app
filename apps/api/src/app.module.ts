@@ -5,7 +5,9 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { validateEnv } from './config/env';
 import { DbModule } from './db/db.module';
+import { CustomerModule } from './customer/customer.module';
 import { GuideModule } from './guide/guide.module';
+import { LakeModule } from './lake/lake.module';
 import { HealthModule } from './health/health.module';
 import { ImportsModule } from './imports/imports.module';
 import { StorageModule } from './storage/storage';
@@ -26,6 +28,7 @@ import { UsersModule } from './users/users.module';
       skipIf: () => process.env.THROTTLE_DISABLED === '1',
     }),
     DbModule,
+    CustomerModule,
     HealthModule,
     UsersModule,
     AuthModule,
@@ -34,6 +37,7 @@ import { UsersModule } from './users/users.module';
     StorageModule,
     ImportsModule,
     GuideModule,
+    LakeModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -11,6 +11,7 @@ import { reservations, tripMembers } from '../db/schema';
 import { matchTrip } from '../trips/planning';
 import { toReservation } from '../trips/serialize';
 import { TripsService } from '../trips/trips.service';
+import { EventsService } from '../customer/events.service';
 import type {
   CreateReservationDto,
   ListReservationsQuery,
@@ -28,6 +29,7 @@ export class ReservationsService {
   constructor(
     @Inject(DB) private readonly db: Database,
     private readonly trips: TripsService,
+    private readonly events: EventsService,
   ) {}
 
   /** Reservations the user can see: their own, plus those in trips they are a member of. */
@@ -110,21 +112,28 @@ export class ReservationsService {
         matchTrip(await this.trips.writableTrips(userId), dto.startAt)?.id ??
         null;
 
-    const [row] = await this.db
-      .insert(reservations)
-      .values({
-        ...this.columns(dto),
-        userId,
-        tripId,
-        type: dto.type,
-        title: dto.title,
-        provider: dto.provider,
-        ref: dto.ref,
-        startAt: toPgDateTime(dto.startAt),
-        source: 'manual',
-        status: 'confirmed',
-      })
-      .returning();
+    const row = await this.db.transaction(async (tx) => {
+      const [r] = await tx
+        .insert(reservations)
+        .values({
+          ...this.columns(dto),
+          userId,
+          tripId,
+          type: dto.type,
+          title: dto.title,
+          provider: dto.provider,
+          ref: dto.ref,
+          startAt: toPgDateTime(dto.startAt),
+          source: 'manual',
+          status: 'confirmed',
+        })
+        .returning();
+      await this.events.track(tx, userId, 'booking_added_manually', {
+        type: r.type,
+        matched_trip: !dto.tripId && !!tripId,
+      });
+      return r;
+    });
     return toReservation(row);
   }
 
@@ -139,24 +148,55 @@ export class ReservationsService {
     if (dto.tripId) await this.trips.access(dto.tripId, userId, 'write');
 
     // a field the user edited is now verified — drop its "Please check" flag
+    // (the validated DTO lists every field, so only count the ones that were actually sent)
+    const edited = Object.keys(dto).filter(
+      (k) => dto[k as keyof UpdateReservationDto] !== undefined,
+    );
     const confidence = { ...(row.fieldConfidence ?? {}) };
-    for (const k of Object.keys(dto)) delete confidence[k];
+    for (const k of edited) delete confidence[k];
 
-    const [updated] = await this.db
-      .update(reservations)
-      .set({
-        ...this.columns(dto),
-        fieldConfidence: Object.keys(confidence).length ? confidence : null,
-      })
-      .where(eq(reservations.id, id))
-      .returning();
+    const updated = await this.db.transaction(async (tx) => {
+      const [u] = await tx
+        .update(reservations)
+        .set({
+          ...this.columns(dto),
+          fieldConfidence: Object.keys(confidence).length ? confidence : null,
+        })
+        .where(eq(reservations.id, id))
+        .returning();
+      // corrections to imported bookings tell us how good the reader is
+      if (row.source !== 'manual')
+        for (const field of edited.filter((k) => k !== 'tripId'))
+          await this.events.track(tx, userId, 'booking_field_corrected', {
+            type: u.type,
+            field,
+            source: row.source,
+          });
+      return u;
+    });
     return toReservation(updated);
   }
 
   /** "Looks right" after an import: confirmed, no more "Please check" flags. */
   async confirm(id: string, userId: string) {
-    await this.load(id, userId, 'write');
-    return this.setStatus(id, { status: 'confirmed', fieldConfidence: null });
+    const row = await this.load(id, userId, 'write');
+    return this.db.transaction(async (tx) => {
+      const [r] = await tx
+        .update(reservations)
+        .set({ status: 'confirmed', fieldConfidence: null })
+        .where(eq(reservations.id, id))
+        .returning();
+      if (row.status === 'pending')
+        await this.events.track(tx, userId, 'booking_confirmed', {
+          type: r.type,
+          source: r.source,
+          minutes_since_import: Math.max(
+            0,
+            Math.round((Date.now() - row.createdAt.getTime()) / 60_000),
+          ),
+        });
+      return toReservation(r);
+    });
   }
 
   async cancel(id: string, userId: string) {

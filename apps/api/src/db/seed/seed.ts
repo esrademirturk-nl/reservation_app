@@ -51,6 +51,14 @@ export async function seed(url = process.env.DATABASE_URL) {
         const memberships = await tx.query.tripMembers.findMany({
           where: (m, { eq }) => eq(m.userId, existing.id),
         });
+        // events are keyed by the pseudonym, not the user, so remove them explicitly
+        const key = await tx.query.customerKeys.findFirst({
+          where: (k, { eq }) => eq(k.userId, existing.id),
+        });
+        if (key)
+          await tx
+            .delete(schema.eventOutbox)
+            .where(eq(schema.eventOutbox.customerKey, key.customerKey));
         await tx.delete(schema.users).where(eq(schema.users.id, existing.id));
         for (const m of memberships)
           await tx.delete(schema.trips).where(eq(schema.trips.id, m.tripId));
@@ -191,6 +199,8 @@ export async function seed(url = process.env.DATABASE_URL) {
             })),
         );
       }
+
+      await seedCustomerData(tx, user.id, tripIds);
     });
 
     // counts for the demo account only (other users may exist, e.g. in tests)
@@ -219,4 +229,119 @@ if (require.main === module) {
       console.error(e);
       process.exit(1);
     });
+}
+
+type Tx = Parameters<
+  Parameters<ReturnType<typeof drizzle<typeof schema>>['transaction']>[0]
+>[0];
+
+/**
+ * The demo account's consents, preferences and a usage history that matches the demo story,
+ * so the data pipeline (docs/DATA-ARCHITECTURE.md) has something to show.
+ */
+async function seedCustomerData(
+  tx: Tx,
+  userId: string,
+  tripIds: Map<string, string>,
+) {
+  const signup = new Date('2026-09-01T09:30:00Z');
+  const [{ customerKey }] = await tx
+    .insert(schema.customerKeys)
+    .values({ userId, createdAt: signup })
+    .returning();
+  await tx.insert(schema.userConsents).values(
+    (
+      [
+        'product_analytics',
+        'personalisation',
+        'ai_processing',
+        'marketing',
+      ] as const
+    ).map((purpose) => ({
+      userId,
+      purpose,
+      granted: purpose !== 'marketing',
+      textVersion: 'privacy-2026-11',
+      source: 'onboarding',
+      recordedAt: signup,
+    })),
+  );
+  await tx.insert(schema.userPreferences).values({
+    userId,
+    pace: 'balanced',
+    interests: ['food', 'history', 'art'],
+    travelParty: 'couple',
+    homeAirport: 'AMS',
+    preferredProviders: ['KLM'],
+    seat: 'window',
+    updatedAt: new Date(signup.getTime() + 5 * 60_000),
+  });
+
+  const ctx = { app: 'api', consent_version: 'privacy-2026-11' };
+  const ev = (
+    eventName: string,
+    occurredAt: Date,
+    properties: Record<string, unknown>,
+  ) => ({
+    customerKey,
+    eventName,
+    occurredAt,
+    properties,
+    context: ctx,
+    shippedAt: null,
+  });
+  const events = [
+    ev('account_created', signup, { language: 'en' }),
+    ev('onboarding_completed', new Date(signup.getTime() + 5 * 60_000), {
+      interests_count: 3,
+      pace: 'balanced',
+      travel_party: 'couple',
+      budget_level: 2,
+    }),
+  ];
+  const trips = await tx.query.trips.findMany({
+    where: (t, { inArray }) => inArray(t.id, [...tripIds.values()]),
+    with: { city: true, reservations: true },
+  });
+  for (const t of trips) {
+    const firstBooking =
+      t.reservations.map((r) => r.createdAt.getTime()).sort()[0] ??
+      Date.parse(`${t.startDate}T00:00:00Z`) - 60 * 86_400_000;
+    const created = new Date(
+      Math.max(signup.getTime() + 3_600_000, firstBooking - 3_600_000),
+    );
+    const days = (a: string, b: string) =>
+      Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
+    events.push(
+      ev('trip_created', created, {
+        city: t.city.name,
+        country_code: t.city.countryCode,
+        nights: days(t.startDate, t.endDate),
+        travelers: t.travelers,
+        days_until_start: days(created.toISOString().slice(0, 10), t.startDate),
+      }),
+    );
+    for (const r of t.reservations.filter((x) => x.source !== 'manual')) {
+      events.push(
+        ev('booking_imported', r.createdAt, {
+          type: r.type,
+          source: r.source,
+          reader: 'claude',
+          fields_flagged: r.fieldConfidence
+            ? Object.keys(r.fieldConfidence).length
+            : 0,
+          matched_trip: true,
+        }),
+      );
+      if (r.status === 'confirmed')
+        events.push(
+          ev(
+            'booking_confirmed',
+            new Date(r.createdAt.getTime() + 7 * 60_000),
+            { type: r.type, source: r.source, minutes_since_import: 7 },
+          ),
+        );
+    }
+  }
+  await tx.insert(schema.eventOutbox).values(events);
 }

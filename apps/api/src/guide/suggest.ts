@@ -95,6 +95,8 @@ export function placesForWindow(
   candidates: CandidatePlace[],
   budgetLevel: number,
   limit = 3,
+  /** from the user's stated interests: negative = show earlier */
+  boost: Partial<Record<CandidatePlace['category'], number>> = {},
 ) {
   const lunch = mins(w.from) <= 13 * 60 && mins(w.to) >= 12 * 60 + 30;
   const evening = mins(w.to) >= 19 * 60;
@@ -110,6 +112,7 @@ export function placesForWindow(
       if (p.category === 'coffee') score -= 5;
       if (evening && p.category === 'walk') score -= 30;
       if (!evening && p.category === 'walk') score += 30;
+      score += boost[p.category] ?? 0;
       return { p, score };
     })
     .sort((a, b) => a.score - b.score)
@@ -150,3 +153,33 @@ const nextDay = (iso: string) =>
 
 export const windowLabel = (w: FreeWindow, dayNumber: number) =>
   `Day ${dayNumber} · ${fmtDay(w.date)} · ${w.from}–${w.to} free`;
+
+const INTEREST_CATEGORIES: Record<string, CandidatePlace['category'][]> = {
+  food: ['food', 'coffee'],
+  museums: ['museum'],
+  history: ['sight', 'museum'],
+  art: ['museum'],
+  architecture: ['sight'],
+  nature: ['walk'],
+  local_life: ['walk', 'food'],
+  nightlife: ['walk'],
+};
+
+/**
+ * Turns stated preferences into picking rules. Relaxed travellers get fewer, longer gaps;
+ * packed travellers get more suggestions in shorter gaps. Each matching interest moves a category up.
+ */
+export function personalise(
+  prefs: { pace: string | null; interests: string[] } | null,
+) {
+  const boost: Partial<Record<CandidatePlace['category'], number>> = {};
+  for (const i of prefs?.interests ?? [])
+    for (const c of INTEREST_CATEGORIES[i] ?? [])
+      boost[c] = (boost[c] ?? 0) - 15;
+  const pace = prefs?.pace ?? 'balanced';
+  return {
+    boost,
+    picksPerWindow: pace === 'relaxed' ? 2 : 3,
+    minWindowMinutes: pace === 'relaxed' ? 150 : pace === 'packed' ? 90 : 120,
+  };
+}

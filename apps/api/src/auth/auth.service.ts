@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { and, eq, isNull } from 'drizzle-orm';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { ConsentsService, type Purpose } from '../customer/consents.service';
+import { EventsService } from '../customer/events.service';
 import { DB, type Database } from '../db/db.module';
 import { refreshTokens } from '../db/schema';
 import type { Env } from '../config/env';
@@ -22,6 +24,8 @@ export class AuthService {
     private readonly users: UsersService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService<Env, true>,
+    private readonly consents: ConsentsService,
+    private readonly events: EventsService,
   ) {}
 
   async register(input: {
@@ -29,10 +33,20 @@ export class AuthService {
     password: string;
     fullName: string;
     language?: 'en' | 'tr' | 'nl';
+    /** choices from the sign-up screen; anything left out stays "not granted" */
+    consents?: Partial<Record<Purpose, boolean>>;
   }) {
-    const user = await this.users.create({
-      ...input,
-      passwordHash: await hashPassword(input.password),
+    const passwordHash = await hashPassword(input.password);
+    // account, pseudonym, consent choices and the first event are saved together
+    const user = await this.db.transaction(async (tx) => {
+      const { consents, ...account } = input;
+      const u = await this.users.create({ ...account, passwordHash }, tx);
+      await this.events.customerKey(u.id, tx);
+      if (consents) await this.consents.set(u.id, consents, 'onboarding', tx);
+      await this.events.track(tx, u.id, 'account_created', {
+        language: u.language,
+      });
+      return u;
     });
     return this.session(user);
   }

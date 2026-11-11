@@ -14,6 +14,9 @@ import type { Env } from '../config/env';
 export const PG_POOL = Symbol('PG_POOL');
 export const DB = Symbol('DB');
 export type Database = NodePgDatabase<typeof schema>;
+/** The database or an open transaction — for code that must join the caller's transaction. */
+export type Executor =
+  Database | Parameters<Parameters<Database['transaction']>[0]>[0];
 
 /** Closes the connection pool when Nest shuts down (tests, SIGTERM in containers). */
 @Injectable()

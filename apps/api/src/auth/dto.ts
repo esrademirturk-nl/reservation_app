@@ -1,4 +1,5 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+import { ConsentChoicesDto } from '../customer/dto';
 import {
   IsEmail,
   IsIn,
@@ -7,6 +8,7 @@ import {
   Length,
   Matches,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
 
 const lower = ({ value }: { value: unknown }) =>
@@ -30,6 +32,12 @@ export class RegisterDto {
   @IsOptional()
   @IsIn(['en', 'tr', 'nl'])
   language?: 'en' | 'tr' | 'nl';
+
+  /** sign-up choices, e.g. { product_analytics: true, personalisation: true } */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ConsentChoicesDto)
+  consents?: ConsentChoicesDto;
 }
 
 export class LoginDto {
