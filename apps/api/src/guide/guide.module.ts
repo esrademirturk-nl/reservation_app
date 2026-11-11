@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env';
 import { TripsModule } from '../trips/trips.module';
 import { GuideController } from './guide.controller';
+import { FeedbackService } from './feedback.service';
 import { PlacesService } from './places.service';
 import { SuggestionsService } from './suggestions.service';
 import { ClaudeTranslator, NARRATION_TRANSLATOR } from './translator';
@@ -14,6 +15,7 @@ import { ClaudeTranslator, NARRATION_TRANSLATOR } from './translator';
   providers: [
     PlacesService,
     SuggestionsService,
+    FeedbackService,
     {
       // with an API key, missing audio-guide languages are translated once and cached
       provide: NARRATION_TRANSLATOR,

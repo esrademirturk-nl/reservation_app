@@ -62,6 +62,10 @@ All routes are under `/api/v1`. Everything needs `Authorization: Bearer <accessT
 | GET / POST | `/trips/:id/plan` | the user's own stops; `{ date, placeId?, title?, startTime?, endTime? }` |
 | PATCH / DELETE | `/trips/:id/plan/:itemId` | |
 | GET | `/trips/:id/suggestions?today=` | sections: Fix your trip · Fill your free time · Don't miss |
+| GET / PUT | `/me/consents` | `{ consents: { product_analytics, personalisation, marketing, ai_processing }, source }` — append-only history |
+| GET / PUT | `/me/preferences` | budget, pace, interests, travel party, home airport, providers, seat; first PUT = onboarding done |
+| POST | `/events` | app usage events (batch ≤ 50, tracking plan in `src/customer/tracking-plan.ts`); dropped without consent |
+| POST | `/trips/:id/suggestions/feedback` | `{ itemRef, action: shown\|accepted\|dismissed\|not_for_me, section }` |
 | POST | `/inbound/email` | public webhook for forwarded emails, signed with `X-Waypad-Signature: sha256=<hmac>` |
 
 `today` is optional everywhere: it defaults to the real date. The web demo sends `2026-10-30`, the day its story is set.
@@ -98,6 +102,7 @@ The image runs migrations on start (`RUN_MIGRATIONS=false` to skip) and can load
 | `npm run test:e2e` | End-to-end tests against the `waypad_test` database |
 | `npm run lint` / `npm run typecheck` | Code checks (also run in CI) |
 | `npm run build` then `npm run start:prod` | Compiled build, as in the Docker image |
+| `npm run lake:ship` / `npm run lake:snapshot` | Ship outbox events / take the daily snapshot into `STORAGE_DIR/lake/bronze` (scheduled automatically when Redis is configured) |
 | `npm run db:migrate:prod` / `npm run db:seed:prod` | Migrations / demo seed from the compiled build (no dev tools needed) |
 
 ## Structure
@@ -119,6 +124,8 @@ src/
   trips/             trips CRUD; planning.ts = readiness, gaps, deadlines, timeline (pure, unit-tested)
   reservations/      reservations CRUD, confirm/cancel, GET /dashboard
   guide/             places, audio guide (+ AI translation cache), suggest.ts = free time & suggestion rules (pure)
+  customer/          consents, preferences, tracking plan, EventsService (writes to the event outbox)
+  lake/              outbox shipper + daily pseudonymous snapshots → lake/bronze (JSON Lines); `npm run lake:ship|lake:snapshot`
   storage/           file storage (local disk now, Azure Blob later — same 3 methods)
   imports/
     extraction/      ExtractionProvider: claude.ts (Claude API) and rule-based.ts (offline)
@@ -153,6 +160,8 @@ test/                end-to-end tests
 - **File safety.** The file type is taken from the file's bytes, not its name; files go to storage under random names; storage keys cannot escape the storage folder.
 - **Suggestions are rules, not ads.** Free time = gaps of 2 h+ between 09:00 and 21:00 (after landing, before the flight home). Places must fit the window and the user's budget; food comes first around lunch. Gaps get a search link (Booking.com / Google Flights) — Waypad does not invent hotel prices or availability.
 - **Audio guides: curated first, AI second.** Texts written for the app are stored per language. If a language is missing and an API key is set, Claude translates the English text once and the result is cached (`source: "ai"`), so the app can label it.
+- **Customer data with consent** ([docs/DATA-ARCHITECTURE.md](../../docs/DATA-ARCHITECTURE.md)). Sign-up records the user's consent choices; a pseudonym (`customer_keys`) is created for every account. Product events go to `event_outbox` **in the same transaction** as the change, and only if the user allowed product analytics. The lake export uses the pseudonym only and exports trips/bookings only for consenting users; titles, references, addresses and emails never leave the app database.
+- **Personalisation, phase 1.** Suggestions use the stated preferences (interests move categories up; a relaxed pace means fewer suggestions in longer gaps) and never repeat a place the user marked "not for me".
 - **Tests use a real database.** e2e tests migrate and seed a separate `waypad_test` database, the same way CI does.
 
 ## Environment variables

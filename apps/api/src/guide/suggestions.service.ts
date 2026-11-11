@@ -1,13 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { addDays, dateOf, todayIso } from '../common/dates';
 import { DB, type Database } from '../db/db.module';
-import { placeNarrations, places, users } from '../db/schema';
+import {
+  placeNarrations,
+  places,
+  suggestionFeedback,
+  userPreferences,
+  users,
+} from '../db/schema';
 import { TripsService } from '../trips/trips.service';
 import {
   freeWindows,
   gapAction,
   placeFacts,
+  personalise,
   placesForWindow,
   windowLabel,
   type Busy,
@@ -41,6 +48,24 @@ export class SuggestionsService {
       where: eq(users.id, userId),
     });
     const budget = user?.budgetLevel ?? 2;
+    const prefs = await this.db.query.userPreferences.findFirst({
+      where: eq(userPreferences.userId, userId),
+    });
+    const rules = personalise(prefs ?? null);
+    // places the user said "not for me" about are never suggested again
+    const notForMe = new Set(
+      (
+        await this.db
+          .select({ ref: suggestionFeedback.itemRef })
+          .from(suggestionFeedback)
+          .where(
+            and(
+              eq(suggestionFeedback.userId, userId),
+              eq(suggestionFeedback.action, 'not_for_me'),
+            ),
+          )
+      ).map((f) => f.ref),
+    );
     const rs = trip.reservations.filter((r) => r.status !== 'cancelled');
 
     // places of the city that are not booked or planned yet
@@ -68,6 +93,7 @@ export class SuggestionsService {
       .filter(
         (p) =>
           !taken.has(p.id) &&
+          !notForMe.has(p.id) &&
           !titles.includes(p.name.toLowerCase().split(/[,(]/)[0].trim()),
       )
       .map((p) => ({ ...p, hasAudioGuide: narrated.has(p.id) }));
@@ -144,6 +170,7 @@ export class SuggestionsService {
       const windows = freeWindows(days, busy, {
         arrival: arrival?.endAt ?? arrival?.startAt,
         departure: departure?.startAt,
+        minMinutes: rules.minWindowMinutes,
       });
       const used = new Set<string>();
       for (const w of windows.slice(0, 3)) {
@@ -151,6 +178,8 @@ export class SuggestionsService {
           w,
           candidates.filter((c) => !used.has(c.id)),
           budget,
+          rules.picksPerWindow,
+          rules.boost,
         );
         if (!picks.length) continue;
         picks.forEach((p) => used.add(p.id));

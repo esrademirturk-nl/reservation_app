@@ -211,6 +211,24 @@ describe('Booking import (e2e)', () => {
       });
     });
 
+    it('fixing one field clears only that field\'s "Please check" flag', async () => {
+      const flights = await http()
+        .get(`/api/v1/reservations?tripId=${tripId}&status=pending`)
+        .set(auth)
+        .expect(200);
+      const f = flights.body[0];
+      expect(f.needsCheck).toEqual(
+        expect.arrayContaining(['endAt', 'checkInOpens']),
+      );
+      const fixed = await http()
+        .patch(`/api/v1/reservations/${f.id}`)
+        .set(auth)
+        .send({ endAt: f.endAt })
+        .expect(200);
+      expect(fixed.body.needsCheck).not.toContain('endAt');
+      expect(fixed.body.needsCheck).toContain('checkInOpens');
+    });
+
     it('ignores mail from strangers and to unknown addresses', async () => {
       const stranger = await post({
         to: user.forwardAddress,

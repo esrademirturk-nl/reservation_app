@@ -29,6 +29,13 @@
       "when": 1794256506883,
       "tag": "0003_guide",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794377054256,
+      "tag": "0004_customer_data",
+      "breakpoints": true
     }
   ]
 }

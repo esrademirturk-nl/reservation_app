@@ -24,7 +24,11 @@
     "db:studio": "drizzle-kit studio",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "db:migrate:prod": "node dist/db/migrate.js",
-    "db:seed:prod": "node dist/db/seed/seed.js"
+    "db:seed:prod": "node dist/db/seed/seed.js",
+    "lake:ship": "tsx src/lake/cli.ts ship",
+    "lake:snapshot": "tsx src/lake/cli.ts snapshot",
+    "lake:ship:prod": "node dist/lake/cli.js ship",
+    "lake:snapshot:prod": "node dist/lake/cli.js snapshot"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

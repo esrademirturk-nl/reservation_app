@@ -2,7 +2,7 @@
 
 How Waypad collects, stores and uses customer data to personalise the product — and how it stays lawful, secure and cheap while doing so.
 
-> Status: design (v1.0, 10 Nov 2026). PNG versions of the diagrams (for slides and documents) are in [`docs/diagrams/`](diagrams/). The operational database (PostgreSQL, `apps/api`) exists; everything marked **Phase 1–3** below is planned.
+> Status: v1.1 (11 Nov 2026) — **Phase 1 API part implemented** (tables, consents, preferences, tracking, outbox shipper, snapshots; see §11). PNG versions of the diagrams (for slides and documents) are in [`docs/diagrams/`](diagrams/). The operational database (PostgreSQL, `apps/api`) exists; everything marked **Phase 1–3** below is planned.
 
 ## 1. Goals
 
@@ -329,3 +329,27 @@ sequenceDiagram
 - Import accuracy: % of imported fields not corrected by the user, per reader and booking type
 - Suggestion acceptance rate per section and segment
 - 30/90-day retention, trips per active user per year
+
+## 11. Implementation status
+
+**Phase 1 — API (done):**
+
+| Design | Code |
+|---|---|
+| `customer_keys`, `user_consents`, `user_preferences`, `event_outbox`, `suggestion_feedback`, `user_features` | migration `apps/api/drizzle/0004_customer_data.sql` |
+| Consent choices at sign-up, `GET/PUT /me/consents` (append-only, text version) | `src/customer/consents.service.ts` |
+| `GET/PUT /me/preferences` | `src/customer/preferences.service.ts` |
+| Tracking plan with schemas; server events written in the same transaction as the change; `POST /events` for app events | `src/customer/tracking-plan.ts`, `events.service.ts` |
+| Suggestion feedback; "not for me" respected; preferences shape suggestions | `src/guide/feedback.service.ts`, `suggest.ts` (`personalise`) |
+| Outbox → bronze every 15 min; daily snapshot 02:30 (Amsterdam) | `src/lake/` (BullMQ with Redis, or `npm run lake:ship` / `lake:snapshot`) |
+
+**Decision taken while building:** Phase 1 uses **daily pseudonymous snapshots** instead of CDC (no extra service; CDC comes in Phase 2). Snapshots contain trips, bookings, preferences and feedback **only for users who allowed product analytics**; customers and consent history are exported for everyone so consent rates can be measured. Booking titles, references, addresses and emails are never exported.
+
+Bronze layout (local disk now, ADLS Gen2 later via the `Storage` class):
+
+```
+lake/bronze/events/ingest_date=YYYY-MM-DD/events-<ts>-<id>.jsonl
+lake/bronze/snapshots/<customers|consents|preferences|trips|reservations|suggestion_feedback|places>/snapshot_date=YYYY-MM-DD/part-0.jsonl
+```
+
+**Phase 1 — still to do:** dbt silver/gold models, funnel dashboard, onboarding/consent screens in the web app.
