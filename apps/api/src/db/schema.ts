@@ -61,6 +61,17 @@ export const documentStatusEnum = pgEnum('document_status', [
   'parsed',
   'failed',
 ]);
+export const placeCategoryEnum = pgEnum('place_category', [
+  'sight',
+  'museum',
+  'food',
+  'coffee',
+  'walk',
+]);
+export const narrationSourceEnum = pgEnum('narration_source', [
+  'curated',
+  'ai',
+]);
 export const planItemKindEnum = pgEnum('plan_item_kind', [
   'booked',
   'planned',
@@ -143,6 +154,51 @@ export const cities = pgTable(
   (t) => [uniqueIndex('cities_name_country_uq').on(t.name, t.countryCode)],
 );
 
+/** Places for Near me, the audio guide and suggestions (only in cities with the live guide). */
+export const places = pgTable(
+  'places',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    cityId: integer('city_id')
+      .notNull()
+      .references(() => cities.id, { onDelete: 'cascade' }),
+    slug: varchar('slug', { length: 64 }).notNull(),
+    name: text('name').notNull(),
+    /** shown under the name, e.g. "Ancient site" */
+    kind: text('kind').notNull(),
+    category: placeCategoryEnum('category').notNull(),
+    address: text('address').notNull().default(''),
+    lat: real('lat').notNull(),
+    lon: real('lon').notNull(),
+    photoUrl: text('photo_url'),
+    photoCredit: text('photo_credit'),
+    hours: text('hours'),
+    hoursNote: text('hours_note'),
+    visitMinutes: smallint('visit_minutes').notNull().default(60),
+    /** 1 = €, 2 = €€, 3 = €€€ (food and coffee) */
+    priceLevel: smallint('price_level'),
+    /** lower = more important, used for "Don't miss" */
+    rank: smallint('rank').notNull().default(100),
+  },
+  (t) => [uniqueIndex('places_city_slug_uq').on(t.cityId, t.slug)],
+);
+
+/** Audio-guide text per language. Curated texts are written by people; AI texts are cached translations. */
+export const placeNarrations = pgTable(
+  'place_narrations',
+  {
+    placeId: uuid('place_id')
+      .notNull()
+      .references(() => places.id, { onDelete: 'cascade' }),
+    language: languageEnum('language').notNull(),
+    text: text('text').notNull(),
+    seconds: smallint('seconds').notNull(),
+    source: narrationSourceEnum('source').notNull().default('curated'),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.placeId, t.language] })],
+);
+
 /* ---------- trips ---------- */
 export const trips = pgTable(
   'trips',
@@ -213,9 +269,17 @@ export const sourceDocuments = pgTable('source_documents', {
   }),
   kind: documentKindEnum('kind').notNull(),
   fileName: text('file_name'),
+  /** '' once the raw content has been purged */
   blobPath: text('blob_path').notNull(),
+  mimeType: varchar('mime_type', { length: 100 })
+    .notNull()
+    .default('application/octet-stream'),
   status: documentStatusEnum('status').notNull().default('processing'),
+  /** shown to the user, e.g. "We couldn't find a booking in this file" */
   error: text('error'),
+  /** which reader was used: "claude" or "rules" */
+  extractor: varchar('extractor', { length: 32 }),
+  processedAt: timestamp('processed_at', { withTimezone: true }),
   createdAt: createdAt(),
 });
 
@@ -297,6 +361,10 @@ export const planItems = pgTable('plan_items', {
   reservationId: uuid('reservation_id').references(() => reservations.id, {
     onDelete: 'cascade',
   }),
+  /** set when the stop is a known place (audio guide, map) */
+  placeId: uuid('place_id').references(() => places.id, {
+    onDelete: 'set null',
+  }),
   title: text('title').notNull(),
   subtitle: text('subtitle'),
   startTime: time('start_time'),
@@ -319,6 +387,25 @@ export const tripMembersRelations = relations(tripMembers, ({ one }) => ({
   trip: one(trips, { fields: [tripMembers.tripId], references: [trips.id] }),
   user: one(users, { fields: [tripMembers.userId], references: [users.id] }),
 }));
+export const placesRelations = relations(places, ({ one, many }) => ({
+  city: one(cities, { fields: [places.cityId], references: [cities.id] }),
+  narrations: many(placeNarrations),
+}));
+export const placeNarrationsRelations = relations(
+  placeNarrations,
+  ({ one }) => ({
+    place: one(places, {
+      fields: [placeNarrations.placeId],
+      references: [places.id],
+    }),
+  }),
+);
+export const sourceDocumentsRelations = relations(
+  sourceDocuments,
+  ({ many }) => ({
+    reservations: many(reservations),
+  }),
+);
 export const reservationsRelations = relations(reservations, ({ one }) => ({
   trip: one(trips, { fields: [reservations.tripId], references: [trips.id] }),
   user: one(users, { fields: [reservations.userId], references: [users.id] }),
@@ -340,4 +427,5 @@ export const planItemsRelations = relations(planItems, ({ one }) => ({
     fields: [planItems.reservationId],
     references: [reservations.id],
   }),
+  place: one(places, { fields: [planItems.placeId], references: [places.id] }),
 }));
